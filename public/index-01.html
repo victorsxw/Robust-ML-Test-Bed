@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Welcome to Robust ML Test Bed</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- Head Section -->
+    <header>
+        <h1><a href="index.html" style="color: inherit; text-decoration: none;">Welcome to Robust ML Test Bed</a></h1>
+        <nav>
+            <ul>
+                <li><a href="index-01.html">INPUT1</a></li>
+                <li><a href="index-02.html">INPUT2</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <div class="container">
+        <!-- left panel structure -->
+        <div class="left-panel">
+            <h1>Model Profiles</h1>
+            <div class="form-container">
+                <!-- Selection for Data Modality -->
+                <div class="form-group">
+                    <label>Data Modality:</label>
+                    <select id="Data_Modality">
+                        <option value="" style="font-weight:bold;">Select Data Modality</option>
+                        <option value="ALL">ALL</option>
+                        <option value="Text">Text</option>
+                        <option value="Numeric">Numeric</option>
+                        <option value="Image">Image</option>
+                        <option value="Audio">Audio</option>
+                        <option value="Video">Video</option>
+                        <option value="Sensor Data">Sensor Data</option>
+                        <option value="Geospatial Data">Geospatial Data</option>
+                        <option value="Time-Series Data">Time-Series Data</option>
+                        <option value="Tabular">Tabular</option>
+                        <option value="Multimodal">Multimodal</option>
+                        <option value="Text and Image">Text and Image</option>
+                        <option value="Tabular and Image">Tabular and Image</option>
+                        <option value="Blanks">Blanks</option>
+                    </select>
+                </div>
+
+                <!-- Selection for Task Type -->
+                <div class="form-group">
+                    <label>Tasks:</label>
+                    <select id="Tasks">
+                        <option value="" style="font-weight:bold;">Select Tasks</option>
+                        <option value="ALL">ALL</option>
+                        <option value="Regression">Regression</option>
+                        <option value="Classification">Classification</option>
+                        <option value="Clustering">Clustering</option>
+                        <option value="Decision Making">Decision Making</option>
+                        <option value="Dimensionality Reduction">Dimensionality Reduction</option>
+                        <option value="Multi-Label Classification">Multi-Label Classification</option>
+                        <option value="Generative task">Generative task</option>
+                    </select>
+                </div>
+
+                <!-- Selection for Learning Architecture -->
+                <div class="form-group">
+                    <label>Learning Architecture:</label>
+                    <select id="Learning_Architecture">
+                        <option value="" style="font-weight:bold;">Select Learning Architecture</option>
+                        <option value="ALL">ALL</option>                        
+                        <option value="Centralized Learning">Centralized Learning</option>
+                        <option value="Distributed Learning">Distributed Learning</option>
+                        <option value="Split Learning">Split Learning</option>
+                        <option value="Centralized and Distributed Learning">Centralized and Distributed Learning</option>
+                        <option value="Blanks">Blanks</option>
+                    </select>
+                </div>
+
+                <!-- Selection for Model Architecture -->
+                <div class="form-group">
+                    <label>Model Architecture:</label>
+                    <select id="Model_Architecture">
+                        <option value="" style="font-weight:bold;">Select Model Architecture</option>
+                        <option value="ALL">ALL</option>                        
+                        <option value="Recurrent Neural Networks">Recurrent Neural Networks</option>
+                        <option value="Convolutional Neural Networks">Convolutional Neural Networks</option>
+                        <option value="Feedforward Neural Networks">Feedforward Neural Networks</option>
+                        <option value="Generative Adversarial Networks">Generative Adversarial Networks</option>
+                        <option value="Reinforcement Learning">Reinforcement Learning</option>
+                        <option value="Transformer Networks">Transformer Networks</option>
+                        <option value="Neural Network">Neural Network</option>
+                        <option value="Blanks">Blanks</option>
+                    </select>
+                </div>
+
+                <!-- Selection for Attacker's Knowledge -->
+                <div class="form-group">
+                    <label>Knowledge:</label>
+                    <select id="Knowledge">
+                        <option value="" style="font-weight:bold;">Select Knowledge</option>
+                        <option value="ALL">ALL</option>                        
+                        <option value="Full Knowledge">Full Knowledge</option>
+                        <option value="Limited Knowledge">Limited Knowledge</option>
+                        <option value="Zero-Knowledge">Zero-Knowledge</option>
+                        <option value="Limited and Zero-knowledge both considered">Limited and Zero-knowledge both considered</option>
+                        <option value="Full/Limited Knowledge">Full/Limited Knowledge</option>
+                    </select>
+                </div>
+
+                <!-- Selection for Application Domains -->
+                <div class="form-group">
+                    <label>Application Domains:</label>
+                    <select id="Application_Domains">
+                        <option value="" style="font-weight:bold;">Select Application Domains</option>
+                        <option value="ALL">ALL</option>
+                        <option value="Image/Object Recognition">Image/Object Recognition</option>
+                        <option value="Natural Language Processing">Natural Language Processing</option>
+                        <option value="Recommendation Systems">Recommendation Systems</option>
+                        <option value="Fraud Detection">Fraud Detection</option>
+                        <option value="Medical Diagnosis">Medical Diagnosis</option>
+                        <option value="Autonomous Driving">Autonomous Driving</option>
+                        <option value="Financial Market Prediction">Financial Market Prediction</option>
+                        <option value="Speech Recognition">Speech Recognition</option>
+                        <option value="Customer Segmentation">Customer Segmentation</option>
+                        <option value="Gaming">Gaming</option>
+                        <option value="Anomaly Detection">Anomaly Detection</option>
+                        <option value="Image search engine">Image search engine</option>
+                        <option value="Blanks">Blanks</option>
+                    </select>
+                </div>
+
+                <button onclick="querySolution()">Search</button>
+                <div id="result">Results will appear here...</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // left panel search function
+        function querySolution() {
+            console.log('Query function called'); // Log function call
+            
+            // Get all select box values
+            const Data_Modality = document.getElementById('Data_Modality').value;
+            const Tasks = document.getElementById('Tasks').value;
+            const Learning_Architecture = document.getElementById('Learning_Architecture').value;
+            const Model_Architecture = document.getElementById('Model_Architecture').value;
+            const Knowledge = document.getElementById('Knowledge').value;
+            const Application_Domains = document.getElementById('Application_Domains').value;
+            
+            // Validate all fields are selected
+            if (!Data_Modality || !Tasks || !Learning_Architecture || !Model_Architecture || !Knowledge || !Application_Domains) {
+                alert('Please select all fields'); // Alert user to fill all fields
+                return;
+            }
+            // Alert user to fill all fields
+            document.getElementById('result').innerHTML = 'Sending request...';
+            // Alert user to fill all fields
+            fetch('/api/query-solution', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json' // Set content type to JSON
+                },
+                body: JSON.stringify({ // Set content type to JSON
+                    Data_Modality,
+                    Tasks,
+                    Learning_Architecture,
+                    Model_Architecture,
+                    Knowledge,
+                    Application_Domains
+                })
+            })
+            .then(response => response.json()) // Convert response to JSON
+            .then(data => { // Handle returned data
+                // Handle returned data
+                const implementations_1 = data.map(item => item.ID).join('<br>');
+                document.getElementById('result').innerHTML = 
+                    `${implementations_1}`;
+            })
+            .catch(error => { // Handle error case
+                // Display error message
+                document.getElementById('result').innerHTML = 
+                    `Error: ${error.message}`;
+            });
+        }
+    </script>
+
+    <!-- Foot Section -->
+    <footer>
+        <p>&copy; 2023 Your Website Name. All rights reserved.</p>
+        <p><a href="#privacy">Privacy Policy</a> | <a href="#terms">Terms of Service</a></p>
+    </footer>
+</body>
+</html> 
