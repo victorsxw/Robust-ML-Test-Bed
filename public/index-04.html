@@ -1,0 +1,491 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Conceptual Attacks Selection</title><!-- 页面标题为"概念攻击选择" -->
+        <style>
+            /* CSS style definition*/
+            body {
+                font-family: Arial, sans-serif;
+                margin: 20px;
+                font-size: 18px;
+            }/* 设置页面基本样式:Arial字体,20px外边距,18px字体大小 */
+
+            .form-group {
+                margin: 10px 0;
+            }/* 设置页面基本样式:Arial字体,20px外边距,18px字体大小 */
+
+            label {
+                display: inline-block;
+                width: 100px;
+                font-size: 18px;
+            }  /* 标签样式:内联块级显示,100px宽度,18px字体 */
+
+            select {
+                width: 300px;
+                padding: 5px;
+                font-size: 18px;
+            } /* 标签样式:内联块级显示,100px宽度,18px字体 */
+
+            button {
+                margin: 10px 0;
+                padding: 5px 15px;
+                font-size: 18px;
+            }/* 按钮样式:10px边距,内边距5px和15px,18px字体 */
+            
+            #result, #result-right, #pythonResult {
+                margin-top: 20px;
+                padding: 10px;
+                border: 1px solid #ccc;
+                min-height: 50px;
+                font-family: Arial, sans-serif;
+                white-space: pre-wrap;
+                overflow-x: auto;
+                font-size: 18px;
+            } /* 结果显示区域样式:顶部边距,边框,最小高度等 */
+
+            /* title style */
+            h1 {
+                font-size: 24px;
+                color: #1a365d;
+                margin-bottom: 24px;
+                font-weight: 600;
+            }/* 标题样式:24px字体,深蓝色,24px下边距,粗体 */
+
+            /* container style */
+            .container {
+                display: flex;
+                justify-content: space-between;
+                gap: 20px;
+            }/* 容器布局:弹性布局,两边分布,20px间距 */
+
+            .left-panel, .right-panel, .third-panel {
+                flex: 1;
+            }
+            /* 左右面板样式:弹性布局占比1 */
+
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <!-- left panel structure -->
+            <div class="left-panel">
+                <h1>Applicable Conceptual Attacks</h1>
+                    <div class="form-container">
+                        <!-- Selection for Data Modality -->
+                        <div class="form-group">
+                            <label>Data Modality:</label>
+                            <select id="Data_Modality">
+                                <option value="" style="font-weight:bold;">Select Data Modality</option>
+                                <option value="ALL">ALL</option>
+                                <option value="Text">Text</option>
+                                <option value="Numeric">Numeric</option>
+                                <option value="Image">Image</option>
+                                <option value="Audio">Audio</option>
+                                <option value="Video">Video</option>
+                                <option value="Sensor Data">Sensor Data</option>
+                                <option value="Geospatial Data">Geospatial Data</option>
+                                <option value="Time-Series Data">Time-Series Data</option>
+                                <option value="Tabular">Tabular</option>
+                                <option value="Multimodal">Multimodal</option>
+                                <option value="Text and Image">Text and Image</option>
+                                <option value="Tabular and Image">Tabular and Image</option>
+                                <option value="Blanks">Blanks</option>
+                            </select>
+                        </div>
+
+                        <!-- Selection for Task Type -->
+                        <div class="form-group">
+                            <label>Tasks:</label>
+                            <select id="Tasks">
+                                <option value="" style="font-weight:bold;">Select Tasks</option>
+                                <option value="ALL">ALL</option>
+                                <option value="Regression">Regression</option>
+                                <option value="Classification">Classification</option>
+                                <option value="Clustering">Clustering</option>
+                                <option value="Decision Making">Decision Making</option>
+                                <option value="Dimensionality Reduction">Dimensionality Reduction</option>
+                                <option value="Multi-Label Classification">Multi-Label Classification</option>
+                                <option value="Generative task">Generative task</option>
+                            </select>
+                        </div>
+
+                        <!-- Selection for Learning Architecture -->
+                        <div class="form-group">
+                            <label>Learning Architecture:</label>
+                            <select id="Learning_Architecture">
+                                <option value="" style="font-weight:bold;">Select Learning Architecture</option>
+                                <option value="ALL">ALL</option>                        
+                                <option value="Centralized Learning">Centralized Learning</option>
+                                <option value="Distributed Learning">Distributed Learning</option>
+                                <option value="Split Learning">Split Learning</option>
+                                <option value="Centralized and Distributed Learning">Centralized and Distributed Learning</option>
+                                <option value="Blanks">Blanks</option>
+                            </select>
+                        </div>
+
+                        <!-- Selection for Model Architecture -->
+                        <div class="form-group">
+                            <label>Model Architecture:</label>
+                            <select id="Model_Architecture">
+                                <option value="" style="font-weight:bold;">Select Model Architecture</option>
+                                <option value="ALL">ALL</option>                        
+                                <option value="Recurrent Neural Networks">Recurrent Neural Networks</option>
+                                <option value="Convolutional Neural Networks">Convolutional Neural Networks</option>
+                                <option value="Feedforward Neural Networks">Feedforward Neural Networks</option>
+                                <option value="Generative Adversarial Networks">Generative Adversarial Networks</option>
+                                <option value="Reinforcement Learning">Reinforcement Learning</option>
+                                <option value="Transformer Networks">Transformer Networks</option>
+                                <option value="Neural Network">Neural Network</option>
+                                <option value="Blanks">Blanks</option>
+                            </select>
+                        </div>
+
+                        <!-- Selection for Attacker's Knowledge -->
+                        <div class="form-group">
+                            <label>Knowledge:</label>
+                            <select id="Knowledge">
+                                <option value="" style="font-weight:bold;">Select Knowledge</option>
+                                <option value="ALL">ALL</option>                        
+                                <option value="Full Knowledge">Full Knowledge</option>
+                                <option value="Limited Knowledge">Limited Knowledge</option>
+                                <option value="Zero-Knowledge">Zero-Knowledge</option>
+                                <option value="Limited and Zero-knowledge both considered">Limited and Zero-knowledge both considered</option>
+                                <option value="Full/Limited Knowledge">Full/Limited Knowledge</option>
+                            </select>
+                        </div>
+
+                        <!-- Selection for Application Domains -->
+                        <div class="form-group">
+                            <label>Application Domains:</label>
+                            <select id="Application_Domains">
+                                <option value="" style="font-weight:bold;">Select Application Domains</option>
+                                <option value="ALL">ALL</option>
+                                <option value="Image/Object Recognition">Image/Object Recognition</option>
+                                <option value="Natural Language Processing">Natural Language Processing</option>
+                                <option value="Recommendation Systems">Recommendation Systems</option>
+                                <option value="Fraud Detection">Fraud Detection</option>
+                                <option value="Medical Diagnosis">Medical Diagnosis</option>
+                                <option value="Autonomous Driving">Autonomous Driving</option>
+                                <option value="Financial Market Prediction">Financial Market Prediction</option>
+                                <option value="Speech Recognition">Speech Recognition</option>
+                                <option value="Customer Segmentation">Customer Segmentation</option>
+                                <option value="Gaming">Gaming</option>
+                                <option value="Anomaly Detection">Anomaly Detection</option>
+                                <option value="Image search engine">Image search engine</option>
+                                <option value="Blanks">Blanks</option>
+                            </select>
+                        </div>
+
+                        <button onclick="querySolution()">Search</button>
+                        <div id="result">Results will appear here...</div>
+                    </div>
+            </div>
+
+            <!-- right panel structure -->
+            <div class="right-panel">
+                <h1>Attack Implementation</h1>
+                <div class="form-container">
+                    <div class="form-group">
+                        <label>Attack ID:</label>
+                        <select id="Attack_ID">
+                        <option value="" style="font-weight:bold;">Select Attack ID</option>
+                            <!-- Out-of-Distribution Attacks -->
+                            <optgroup label="Out-of-Distribution Attacks">
+                                <option value="A_OOD_001">A_OOD_001</option>
+                            </optgroup>
+
+                            <!-- Property Inference Attacks -->
+                            <optgroup label="Property Inference Attacks">
+                                <option value="A_Property_inference_Attack_001">A_Property_inference_Attack_001</option>
+                            </optgroup>
+
+                            <!-- Jailbreak Attacks -->
+                            <optgroup label="Jailbreak Attacks">
+                                <option value="A_Jailbreak_001">A_Jailbreak_001</option>
+                                <option value="A_Jailbreak_002">A_Jailbreak_002</option>
+                            </optgroup>
+
+                            <!-- Indirect Prompt Injection -->
+                            <optgroup label="Indirect Prompt Injection">
+                                <option value="A_Indirect_Prompt_injection_1">A_Indirect_Prompt_injection_1</option>
+                                <option value="A_Indirect_Prompt_injection_2">A_Indirect_Prompt_injection_2</option>
+                            </optgroup>
+
+                            <!-- GAI Poisoning -->
+                            <optgroup label="GAI Poisoning">
+                                <option value="A_GAI_Poisoning_001">A_GAI_Poisoning_001</option>
+                                <option value="A_GAI_Poisoning_002">A_GAI_Poisoning_002</option>
+                            </optgroup>
+
+                            <!-- Goal Hijacking -->
+                            <optgroup label="Goal Hijacking">
+                                <option value="A_Goal_Hijacking_001">A_Goal_Hijacking_001</option>
+                                <option value="A_Goal_Hijacking_002">A_Goal_Hijacking_002</option>
+                            </optgroup>
+
+                            <!-- Reconstruction Attacks -->
+                            <optgroup label="Reconstruction Attacks">
+                                <option value="A_Reconstruction_001">A_Reconstruction_001</option>
+                                <option value="A_Reconstruction_002">A_Reconstruction_002</option>
+                                <option value="A_Reconstruction_003">A_Reconstruction_003</option>
+                            </optgroup>
+
+                            <!-- Membership Inference -->
+                            <optgroup label="Membership Inference">
+                                <option value="A_Membership_inference_001">A_Membership_inference_001</option>
+                                <option value="A_Membership_inference_002">A_Membership_inference_002</option>
+                                <option value="A_Membership_inference_003">A_Membership_inference_003</option>
+                                <option value="A_Membership_inference_004">A_Membership_inference_004</option>
+                                <option value="A_Membership_inference_005">A_Membership_inference_005</option>
+                                <option value="A_Membership_inference_006">A_Membership_inference_006</option>
+                            </optgroup>
+
+                            <!-- Backdoor Attacks -->
+                            <optgroup label="Backdoor Attacks">
+                                <option value="A_Backdoor_001">A_Backdoor_001</option>
+                                <option value="A_Backdoor_002">A_Backdoor_002</option>
+                                <option value="A_Backdoor_003">A_Backdoor_003</option>
+                                <option value="A_Backdoor_004">A_Backdoor_004</option>
+                                <option value="A_Backdoor_005">A_Backdoor_005</option>
+                                <option value="A_Backdoor_006">A_Backdoor_006</option>
+                                <option value="A_Backdoor_007">A_Backdoor_007</option>
+                                <option value="A_Backdoor_008">A_Backdoor_008</option>
+                            </optgroup>
+
+                            <!-- Poisoning Attacks -->
+                            <optgroup label="Poisoning Attacks">
+                                <option value="A_Poisoning_001">A_Poisoning_001</option>
+                                <option value="A_Poisoning_002">A_Poisoning_002</option>
+                                <option value="A_Poisoning_003">A_Poisoning_003</option>
+                                <option value="A_Poisoning_004">A_Poisoning_004</option>
+                                <option value="A_Poisoning_005">A_Poisoning_005</option>
+                                <option value="A_Poisoning_006">A_Poisoning_006</option>
+                                <option value="A_Poisoning_007">A_Poisoning_007</option>
+                                <option value="A_Poisoning_008">A_Poisoning_008</option>
+                                <option value="A_Poisoning_009">A_Poisoning_009</option>
+                                <option value="A_Poisoning_010">A_Poisoning_010</option>
+                                <option value="A_Poisoning_011">A_Poisoning_011</option>
+                                <option value="A_Poisoning_012">A_Poisoning_012</option>
+                            </optgroup>
+
+                            <!-- Evasion Attacks -->
+                            <optgroup label="Evasion Attacks">
+                                <option value="A_Evasion_001">A_Evasion_001</option>
+                                <option value="A_Evasion_002">A_Evasion_002</option>
+                                <option value="A_Evasion_003">A_Evasion_003</option>
+                                <option value="A_Evasion_004">A_Evasion_004</option>
+                                <option value="A_Evasion_005">A_Evasion_005</option>
+                                <option value="A_Evasion_006">A_Evasion_006</option>
+                                <option value="A_Evasion_007">A_Evasion_007</option>
+                                <option value="A_Evasion_008">A_Evasion_008</option>
+                                <option value="A_Evasion_009">A_Evasion_009</option>
+                                <option value="A_Evasion_010">A_Evasion_010</option>
+                                <option value="A_Evasion_011">A_Evasion_011</option>
+                                <option value="A_Evasion_012">A_Evasion_012</option>
+                                <option value="A_Evasion_013">A_Evasion_013</option>
+                                <option value="A_Evasion_014">A_Evasion_014</option>
+                                <option value="A_Evasion_015">A_Evasion_015</option>
+                                <option value="A_Evasion_016">A_Evasion_016</option>
+                                <option value="A_Evasion_017">A_Evasion_017</option>
+                                <option value="A_Evasion_018">A_Evasion_018</option>
+                            </optgroup>                    
+                        </select>
+                    </div>
+                    <button onclick="querySolutionRight()">Search</button>
+                    <div id="result-right">Results will appear here...</div>
+                </div>
+            </div>
+        </div>   
+        <!-- Third panel structure -->
+        <div class="third-panel">
+                <h1>Implementation Results</h1>
+                <div class="form-container">
+                    <div class="form-group">
+                        <label>Upload File:</label>
+                        <input type="file" id="fileInput">
+                        <button onclick="uploadFile()">Upload</button>
+                    </div>
+                    
+                    <div class="form-group">
+                        <button onclick="sendToPython()">Send to Python</button>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Python Result:</label>
+                        <textarea id="pythonResult" rows="10" cols="100" readonly></textarea>
+                        
+                    </div>
+                </div>
+        </div>
+
+        <script>
+            // onload function// 页面加载完成时执行的函数
+            window.onload = function() 
+            {
+                console.log('Page loaded');// 在控制台输出页面加载完成的信息
+                document.getElementById('result').innerHTML = 'Page loaded successfully. Please make your selections.';// 设置左侧结果区域的初始提示文本
+                document.getElementById('result-right').innerHTML = 'Page loaded successfully. Please make your selection.';// 设置右侧结果区域的初始提示文本
+                document.getElementById('pythonresult').innerHTML = 'Page loaded successfully. Please make your selection.';
+            }
+
+            // left pannel search function
+            function querySolution() 
+            {
+                console.log('Query function called'); // 记录函数被调用
+                
+                // 获取所有选择框的值
+                const Data_Modality = document.getElementById('Data_Modality').value;
+                const Tasks = document.getElementById('Tasks').value;
+                const Learning_Architecture = document.getElementById('Learning_Architecture').value;
+                const Model_Architecture = document.getElementById('Model_Architecture').value;
+                const Knowledge = document.getElementById('Knowledge').value;
+                const Application_Domains = document.getElementById('Application_Domains').value;
+                
+                // 验证所有字段是否都已选择
+                if (!Data_Modality || !Tasks || !Learning_Architecture || !Model_Architecture || !Knowledge || !Application_Domains) {
+                    alert('Please select all fields');// 提示用户填写所有字段
+                    return;
+                }
+                // 提示用户填写所有字段
+                document.getElementById('result').innerHTML = 'Sending request...';
+                // 提示用户填写所有字段
+                fetch('/api/query-solution', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'// 设置内容类型为JSON
+                    },
+                    body: JSON.stringify({// 设置内容类型为JSON
+                        Data_Modality,
+                        Tasks,
+                        Learning_Architecture,
+                        Model_Architecture,
+                        Knowledge,
+                        Application_Domains
+                    })
+                })
+                .then(response => response.json())// 将响应转换为JSON
+                .then(data => {// 处理返回的数据
+                    // 处理返回的数据
+                    const implementations_1 = data.map(item => item.ID).join('<br>');
+                    document.getElementById('result').innerHTML = 
+                        `${implementations_1}`;
+                })
+                .catch(error => {// 处理错误情况
+                    // 显示错误信息
+                    document.getElementById('result').innerHTML = 
+                        `Error: ${error.message}`;
+                });
+            }
+
+            // 声明全局变量存储 Implementation ID
+            let globalImplementationIDArray = [];
+            // right panel search function
+            function querySolutionRight() {
+                const Attack_ID = document.getElementById('Attack_ID').value;// 获取攻击ID的值
+                
+                // 获取攻击ID的值
+                if (!Attack_ID) {
+                    alert('Please select the field');// 获取攻击ID的值
+                    return;
+                }
+
+                document.getElementById('result-right').innerHTML = 'Sending request...';// 设置发送请求时的提示文本
+                
+                // 发送POST请求到后端API
+                fetch('/api/query-solution-right', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        Attack_ID
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {// 显示格式化的JSON结果
+                    // 将整个数据数组存储到全局变量
+                    globalImplementationIDArray = data;
+
+                    // 仅提取 Implementation_ID 并生成字符串
+                    const implementations = data.map(item => item.Implementation_ID).join('<br>');
+                    document.getElementById('result-right').innerHTML = 
+                        `${implementations}`;
+                    
+                })
+                .catch(error => {// 显示错误信息
+                    document.getElementById('result-right').innerHTML = 
+                        `Error: ${error.message}`;
+                });
+            }
+            
+            // 声明全局变量存储上传文件的路径
+            let uploadedFileName = ''; // 存储上传文件的路径
+            // 文件上传函数
+            function uploadFile() {
+                const fileInput = document.getElementById('fileInput');// 获取文件输入元素
+                const file = fileInput.files[0];// 获取选择的第一个文件
+                if (!file) {
+                    alert('Please select a file first');// 如果未选择文件则提示
+                    return;
+                }
+                //检查文件名后缀是否为.h5
+                const fileExtension = file.name.split('.').pop().toLowerCase();
+                if (fileExtension !== 'h5') {
+                    alert('Only .h5 file format is allowed');
+                    return;
+    }
+                
+                const formData = new FormData();// 创建FormData对象用于文件上传
+                formData.append('file', file);// 将文件添加到表单数据中
+                 // 发送文件上传请求
+                fetch('/api/upload', {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(response => response.json())
+                .then(data => {
+                    uploadedFileName = file.name;// 保存返回的文件路径
+                    alert('File uploaded successfully');// 提示上传成功
+                })
+                .catch(error => {
+                    console.error('Error:', error);// 在控制台记录错误
+                    alert('Error uploading file');// 提示上传失败
+                });
+            }
+            // 提示上传失败
+            function sendToPython() 
+            {// 获取右侧结果区域的内容
+              //  const resultRight = document.getElementById('result-right').innerHTML;
+                    // 检查是否已上传文件
+                    if (!uploadedFileName) {
+                        alert('Please upload a file first');
+                        return;
+                    }
+
+                    // 使用全局变量的globalImplementationIDArray控制需要发送的implementationID
+                    const implementationID = globalImplementationIDArray[0].Implementation_ID
+                    
+                    // 发送处理请求到后端
+                    fetch('/api/process', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            implementation_ID: implementationID,// 发送ImplementationID结果
+                            upload_file_name: uploadedFileName// 发送文件路径
+                        })
+                    })
+                    .then(response => response.json())
+                    .then(data => {// 将处理结果显示在Python结果文本区域
+                        document.getElementById('pythonResult').value = JSON.stringify(data, null, 2);
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);// 记录错误
+                        alert('Error processing data');// 提示处理失败
+                    });
+            }
+
+        </script>
+    </body>
+</html>

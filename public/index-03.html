@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>AI Attack Analysis System</title>
+    <style>
+        /* 基础样式 */
+        body {
+            font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f7fa;
+            color: #2c3e50;
+            line-height: 1.6;
+        }
+
+        /* 容器样式 */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+            padding: 20px;
+        }
+
+        /* 面板样式 */
+        .left-panel, .right-panel {
+            background: white;
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+        }
+
+        /* 标题样式 */
+        h1 {
+            font-size: 24px;
+            color: #1a365d;
+            margin-bottom: 24px;
+            font-weight: 600;
+        }
+
+        /* 表单容器 */
+        .form-container {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        /* 表单组样式 */
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        /* 标签样式 */
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: #4a5568;
+            width: auto;
+        }
+
+        /* 下拉框样式 */
+        select {
+            width: 100%;
+            padding: 10px 14px;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 15px;
+            color: #2d3748;
+            background-color: white;
+            transition: all 0.2s ease;
+            outline: none;
+            cursor: pointer;
+        }
+
+        select:hover {
+            border-color: #cbd5e0;
+        }
+
+        select:focus {
+            border-color: #4299e1;
+            box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.15);
+        }
+
+        /* 按钮样式 */
+        button {
+            background-color: #4299e1;
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            width: fit-content;
+        }
+
+        button:hover {
+            background-color: #3182ce;
+            transform: translateY(-1px);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        /* 结果区域样式 */
+        #result, #result-right {
+            background: #f8fafc;
+            padding: 20px;
+            border-radius: 8px;
+            border: 1px solid #e2e8f0;
+            min-height: 100px;
+            margin-top: 20px;
+            font-family: monospace;
+            white-space: pre-wrap;
+            overflow-x: auto;
+            font-size: 20px;
+        }
+
+        /* 加载状态样式 */
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(66, 153, 225, 0.3);
+            border-radius: 50%;
+            border-top-color: #4299e1;
+            animation: spin 1s ease-in-out infinite;
+            margin-left: 8px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+            
+            .left-panel, .right-panel {
+                padding: 16px;
+            }
+            
+            h1 {
+                font-size: 20px;
+            }
+            
+            button {
+                width: 100%;
+            }
+        }
+
+        /* 选项组样式 */
+        optgroup {
+            font-weight: 600;
+            color: #4a5568;
+        }
+
+        option {
+            padding: 8px;
+        }
+
+        /* 错误提示样式 */
+        .error {
+            color: #e53e3e;
+            font-size: 14px;
+            margin-top: 4px;
+        }
+
+        /* 成功提示样式 */
+        .success {
+            color: #38a169;
+            font-size: 14px;
+            margin-top: 4px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- 左半边面板 - 保持原样 -->
+        <div class="left-panel">
+            <h1>Applicable Conceptual Attacks</h1>
+    
+            <div class="form-container">
+                <!-- Selection for Data Modality -->
+                <div class="form-group">
+                    <label>Data Modality:</label>
+                    <select id="Data_Modality">
+                        <option value="">Select Data Modality</option>
+                        <option value="ALL">ALL</option>
+                        <option value="Text">Text</option>
+                        <option value="Numeric">Numeric</option>
+                        <option value="Image">Image</option>
+                        <option value="Audio">Audio</option>
+                        <option value="Video">Video</option>
+                        <option value="Sensor Data">Sensor Data</option>
+                        <option value="Geospatial Data">Geospatial Data</option>
+                        <option value="Time-Series Data">Time-Series Data</option>
+                        <option value="Tabular">Tabular</option>
+                        <option value="Multimodal">Multimodal</option>
+                        <option value="Text and Image">Text and Image</option>
+                        <option value="Tabular and Image">Tabular and Image</option>
+                        <option value="Blanks">Blanks</option>
+                    </select>
+                </div>
+
+                <!-- Selection for Task Type -->
+                <div class="form-group">
+                    <label>Tasks:</label>
+                    <select id="Tasks">
+                        <option value="">Select Tasks</option>
+                        <option value="ALL">ALL</option>
+                        <option value="Regression">Regression</option>
+                        <option value="Classification">Classification</option>
+                        <option value="Clustering">Clustering</option>
+                        <option value="Decision Making">Decision Making</option>
+                        <option value="Dimensionality Reduction">Dimensionality Reduction</option>
+                        <option value="Multi-Label Classification">Multi-Label Classification</option>
+                        <option value="Generative task">Generative task</option>
+                    </select>
+                </div>
+
+                <!-- Selection for Learning Architecture -->
+                <div class="form-group">
+                    <label>Learning Architecture:</label>
+                    <select id="Learning_Architecture">
+                        <option value="">Select Learning Architecture</option>
+                        <option value="ALL">ALL</option>
+                        <option value="Centralized Learning">Centralized Learning</option>
+                        <option value="Distributed Learning">Distributed Learning</option>
+                        <option value="Split Learning">Split Learning</option>
+                        <option value="Centralized and Distributed Learning">Centralized and Distributed Learning</option>
+                        <option value="Blanks">Blanks</option>
+                    </select>
+                </div>
+
+                <!-- Selection for Model Architecture -->
+                <div class="form-group">
+                    <label>Model Architecture:</label>
+                    <select id="Model_Architecture">
+                        <option value="">Select Model Architecture</option>
+                        <option value="ALL">ALL</option>
+                        <option value="Recurrent Neural Networks">Recurrent Neural Networks</option>
+                        <option value="Convolutional Neural Networks">Convolutional Neural Networks</option>
+                        <option value="Feedforward Neural Networks">Feedforward Neural Networks</option>
+                        <option value="Generative Adversarial Networks">Generative Adversarial Networks</option>
+                        <option value="Reinforcement Learning">Reinforcement Learning</option>
+                        <option value="Transformer Networks">Transformer Networks</option>
+                        <option value="Neural Network">Neural Network</option>
+                        <option value="Blanks">Blanks</option>
+                    </select>
+                </div>
+
+                <!-- Selection for Attacker's Knowledge -->
+                <div class="form-group">
+                    <label>Knowledge:</label>
+                    <select id="Knowledge">
+                        <option value="">Select Knowledge</option>
+                        <option value="ALL">ALL</option>
+                        <option value="Full Knowledge">Full Knowledge</option>
+                        <option value="Limited Knowledge">Limited Knowledge</option>
+                        <option value="Zero-Knowledge">Zero-Knowledge</option>
+                        <option value="Limited and Zero-knowledge both considered">Limited and Zero-knowledge both considered</option>
+                        <option value="Full/Limited Knowledge">Full/Limited Knowledge</option>
+                        <option value="Blanks">Blanks</option>
+                    </select>
+                </div>
+
+                <!-- Selection for Application Domains -->
+                <div class="form-group">
+                    <label>Application Domains:</label>
+                    <select id="Application_Domains">
+                        <option value="">Select Application Domain</option>
+                        <option value="ALL">ALL</option>
+                        <option value="Image/Object Recognition">Image/Object Recognition</option>
+                        <option value="Natural Language Processing">Natural Language Processing</option>
+                        <option value="Recommendation Systems">Recommendation Systems</option>
+                        <option value="Fraud Detection">Fraud Detection</option>
+                        <option value="Medical Diagnosis">Medical Diagnosis</option>
+                        <option value="Autonomous Driving">Autonomous Driving</option>
+                        <option value="Financial Market Prediction">Financial Market Prediction</option>
+                        <option value="Speech Recognition">Speech Recognition</option>
+                        <option value="Customer Segmentation">Customer Segmentation</option>
+                        <option value="Gaming">Gaming</option>
+                        <option value="Anomaly Detection">Anomaly Detection</option>
+                        <option value="Image search engine">Image search engine</option>
+                        <option value="Blanks">Blanks</option>
+                    </select>
+                </div>
+
+                <button onclick="querySolution()">Search</button>
+                <div id="result">Results will appear here...</div>
+            </div>
+        </div>
+
+        <!-- 右半边面板 - 只有一个选择项 -->
+        <div class="right-panel">
+            <h1>Attack Implementation</h1>
+            <div class="form-container">
+                <div class="form-group">
+                    <label>Attack ID:</label>
+                    <select id="Attack_ID">                        
+                    <option value="" style="font-weight:bold;">Select Attack ID</option>
+                         <!-- Out-of-Distribution Attacks -->
+                        <optgroup label="Out-of-Distribution Attacks">
+                            <option value="A_OOD_001">A_OOD_001</option>
+                        </optgroup>
+
+                        <!-- Property Inference Attacks -->
+                        <optgroup label="Property Inference Attacks">
+                            <option value="A_Property_inference_Attack_001">A_Property_inference_Attack_001</option>
+                        </optgroup>
+
+                        <!-- Jailbreak Attacks -->
+                        <optgroup label="Jailbreak Attacks">
+                            <option value="A_Jailbreak_001">A_Jailbreak_001</option>
+                            <option value="A_Jailbreak_002">A_Jailbreak_002</option>
+                        </optgroup>
+
+                        <!-- Indirect Prompt Injection -->
+                        <optgroup label="Indirect Prompt Injection">
+                            <option value="A_Indirect_Prompt_injection_1">A_Indirect_Prompt_injection_1</option>
+                            <option value="A_Indirect_Prompt_injection_2">A_Indirect_Prompt_injection_2</option>
+                        </optgroup>
+
+                        <!-- GAI Poisoning -->
+                        <optgroup label="GAI Poisoning">
+                            <option value="A_GAI_Poisoning_001">A_GAI_Poisoning_001</option>
+                            <option value="A_GAI_Poisoning_002">A_GAI_Poisoning_002</option>
+                        </optgroup>
+
+                        <!-- Goal Hijacking -->
+                        <optgroup label="Goal Hijacking">
+                            <option value="A_Goal_Hijacking_001">A_Goal_Hijacking_001</option>
+                            <option value="A_Goal_Hijacking_002">A_Goal_Hijacking_002</option>
+                        </optgroup>
+
+                        <!-- Reconstruction Attacks -->
+                        <optgroup label="Reconstruction Attacks">
+                            <option value="A_Reconstruction_001">A_Reconstruction_001</option>
+                            <option value="A_Reconstruction_002">A_Reconstruction_002</option>
+                            <option value="A_Reconstruction_003">A_Reconstruction_003</option>
+                        </optgroup>
+
+                        <!-- Membership Inference -->
+                        <optgroup label="Membership Inference">
+                            <option value="A_Membership_inference_001">A_Membership_inference_001</option>
+                            <option value="A_Membership_inference_002">A_Membership_inference_002</option>
+                            <option value="A_Membership_inference_003">A_Membership_inference_003</option>
+                            <option value="A_Membership_inference_004">A_Membership_inference_004</option>
+                            <option value="A_Membership_inference_005">A_Membership_inference_005</option>
+                            <option value="A_Membership_inference_006">A_Membership_inference_006</option>
+                        </optgroup>
+
+                        <!-- Backdoor Attacks -->
+                        <optgroup label="Backdoor Attacks">
+                            <option value="A_Backdoor_001">A_Backdoor_001</option>
+                            <option value="A_Backdoor_002">A_Backdoor_002</option>
+                            <option value="A_Backdoor_003">A_Backdoor_003</option>
+                            <option value="A_Backdoor_004">A_Backdoor_004</option>
+                            <option value="A_Backdoor_005">A_Backdoor_005</option>
+                            <option value="A_Backdoor_006">A_Backdoor_006</option>
+                            <option value="A_Backdoor_007">A_Backdoor_007</option>
+                            <option value="A_Backdoor_008">A_Backdoor_008</option>
+                        </optgroup>
+
+                        <!-- Poisoning Attacks -->
+                        <optgroup label="Poisoning Attacks">
+                            <option value="A_Poisoning_001">A_Poisoning_001</option>
+                            <option value="A_Poisoning_002">A_Poisoning_002</option>
+                            <option value="A_Poisoning_003">A_Poisoning_003</option>
+                            <option value="A_Poisoning_004">A_Poisoning_004</option>
+                            <option value="A_Poisoning_005">A_Poisoning_005</option>
+                            <option value="A_Poisoning_006">A_Poisoning_006</option>
+                            <option value="A_Poisoning_007">A_Poisoning_007</option>
+                            <option value="A_Poisoning_008">A_Poisoning_008</option>
+                            <option value="A_Poisoning_009">A_Poisoning_009</option>
+                            <option value="A_Poisoning_010">A_Poisoning_010</option>
+                            <option value="A_Poisoning_011">A_Poisoning_011</option>
+                            <option value="A_Poisoning_012">A_Poisoning_012</option>
+                        </optgroup>
+
+                        <!-- Evasion Attacks -->
+                        <optgroup label="Evasion Attacks">
+                            <option value="A_Evasion_001">A_Evasion_001</option>
+                            <option value="A_Evasion_002">A_Evasion_002</option>
+                            <option value="A_Evasion_003">A_Evasion_003</option>
+                            <option value="A_Evasion_004">A_Evasion_004</option>
+                            <option value="A_Evasion_005">A_Evasion_005</option>
+                            <option value="A_Evasion_006">A_Evasion_006</option>
+                            <option value="A_Evasion_007">A_Evasion_007</option>
+                            <option value="A_Evasion_008">A_Evasion_008</option>
+                            <option value="A_Evasion_009">A_Evasion_009</option>
+                            <option value="A_Evasion_010">A_Evasion_010</option>
+                            <option value="A_Evasion_011">A_Evasion_011</option>
+                            <option value="A_Evasion_012">A_Evasion_012</option>
+                            <option value="A_Evasion_013">A_Evasion_013</option>
+                            <option value="A_Evasion_014">A_Evasion_014</option>
+                            <option value="A_Evasion_015">A_Evasion_015</option>
+                            <option value="A_Evasion_016">A_Evasion_016</option>
+                            <option value="A_Evasion_017">A_Evasion_017</option>
+                            <option value="A_Evasion_018">A_Evasion_018</option>
+                        </optgroup>
+                    </select>
+                </div>
+                <button onclick="querySolutionRight()">Search</button>
+                <div id="result-right">Results will appear here...</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 添加加载状态显示
+        function showLoading(elementId) {
+            const element = document.getElementById(elementId);
+            element.innerHTML = 'Loading... <div class="loading"></div>';
+        }
+
+        // 更新原有的查询函数
+        function querySolution() {
+            const fields = [
+                'Data_Modality',
+                'Tasks',
+                'Learning_Architecture',
+                'Model_Architecture',
+                'Knowledge',
+                'Application_Domains'
+            ];
+
+            // 验证所有字段
+            const values = {};
+            let hasEmpty = false;
+            fields.forEach(field => {
+                const value = document.getElementById(field).value;
+                if (!value) {
+                    hasEmpty = true;
+                    document.getElementById(field).style.borderColor = '#e53e3e';
+                } else {
+                    document.getElementById(field).style.borderColor = '#e2e8f0';
+                }
+                values[field] = value;
+            });
+
+            if (hasEmpty) {
+                document.getElementById('result').innerHTML = 
+                    '<div class="error">Please fill in all fields</div>';
+                return;
+            }
+
+            showLoading('result');
+
+            fetch('/api/query-solution', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(values)
+            })
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('result').innerHTML = 
+                    `<div class="success">Result:</div><pre>${JSON.stringify(data, null, 2)}</pre>`;
+            })
+            .catch(error => {
+                document.getElementById('result').innerHTML = 
+                    `<div class="error">Error: ${error.message}</div>`;
+            });
+        }
+
+        // 更新右侧查询函数
+        function querySolutionRight() {
+            const Attack_ID = document.getElementById('Attack_ID').value;
+
+            if (!Attack_ID) {
+                document.getElementById('Attack_ID').style.borderColor = '#e53e3e';
+                document.getElementById('result-right').innerHTML = 
+                    '<div class="error">Please select an Attack ID</div>';
+                return;
+            }
+
+            showLoading('result-right');
+
+            fetch('/api/query-solution-right', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ Attack_ID })
+            })
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('result-right').innerHTML = 
+                    `<div class="success">Result:</div><pre>${JSON.stringify(data, null, 2)}</pre>`;
+            })
+            .catch(error => {
+                document.getElementById('result-right').innerHTML = 
+                    `<div class="error">Error: ${error.message}</div>`;
+            });
+        }
+
+        // 页面加载完成后的初始化
+        window.onload = function() {
+            document.getElementById('result').innerHTML = 
+                '<div class="success">Ready to search. Please make your selections.</div>';
+            document.getElementById('result-right').innerHTML = 
+                '<div class="success">Ready to search. Please select an Attack ID.</div>';
+        }
+    </script>
+</body>
+</html>
