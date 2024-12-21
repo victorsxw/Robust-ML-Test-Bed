@@ -18,11 +18,42 @@
         </nav>
     </header>
 
+
+
+
     <div class="container">
-        <!-- left panel structure -->
+        <!-- client structure -->
+        <div class="client-input">
+            <h1>Client Inputs</h1>
+            <div class="input-group">
+                <label for="clientName">Please enter your name:</label>
+                <input type="text" id="clientName" placeholder="Enter your name here">
+                <div id="errorMessage" class="error-message">Please enter a valid name</div>
+            </div>
+            <button class="submit-btn" onclick="submitClientName()">Confirm</button>
+        </div>
+        <!-- model profiles structure -->
         <div class="left-panel">
             <h1>Model Profiles</h1>
             <div class="form-container">
+                <!-- Selection for Attack Type -->
+                <div class="form-group">
+                    <label>Attack Type:</label>
+                    <select id="Attack_Type">
+                        <option value="" style="font-weight:bold;">Select Attack Type</option>
+                        <option value="ALL">ALL</option>                        
+                        <option value="Poinson Attack">Poinson Attack</option>
+                        <option value="Evasion Attack">Evasion Attack</option>
+                        <option value="Privacy Attack">Privacy Attack</option>
+                        <option value="Jailbreak Attack">Jailbreak Attack</option>
+                        <option value="Backdoor Attack">Backdoor Attack</option>
+                        <option value="Goal Hijacking">Goal Hijacking</option>
+                        <option value="Indirect Prompt Injections">Indirect Prompt Injections</option>
+                        <option value="Blanks">Blanks</option>
+                    </select>
+                </div>                                
+                
+                
                 <!-- Selection for Data Modality -->
                 <div class="form-group">
                     <label>Data Modality:</label>
@@ -130,11 +161,59 @@
 
                 <button onclick="querySolution()">Search</button>
                 <div id="result">Results will appear here...</div>
+            
+                <!-- 在现有表单后添加 PDF 按钮 -->
+            <div class="form-group">
+                <button id="generatePDF" class="btn" onclick="generatePDFReport()">
+                    Generate PDF Report
+                </button>
+                <button id="nextStep" class="btn" onclick="querySolutionRightAndRedirect()">
+                    Next Step
+                </button>
+            </div>
+                                
             </div>
         </div>
     </div>
 
     <script>
+        
+        // 全局变量存储用户名
+        let globalClientName = '';
+        let globalImplementations_1 = [];  // 存储查询结果
+
+
+        function submitClientName() {
+           const clientNameInput = document.getElementById('clientName');
+           const errorMessage = document.getElementById('errorMessage');
+           const name = clientNameInput.value.trim();
+            // 验证输入
+           if (name === '') {
+               errorMessage.style.display = 'block';
+               return;
+           }
+            // 存储用户名
+           globalClientName = name;
+           errorMessage.style.display = 'none';
+            // 可以添加成功提示
+           alert(`Welcome, ${globalClientName}!`);
+            // 跳转到下一个页面或执行其他操作
+           // window.location.href = 'next-page.html';
+       }
+        // 添加回车键提交功能
+       document.getElementById('clientName').addEventListener('keypress', function(e) {
+           if (e.key === 'Enter') {
+               submitClientName();
+           }
+       });
+        // 输入时隐藏错误消息
+       document.getElementById('clientName').addEventListener('input', function() {
+           document.getElementById('errorMessage').style.display = 'none';
+       });        
+        
+        
+        
+        
         // left panel search function
         function querySolution() {
             console.log('Query function called'); // Log function call
@@ -172,6 +251,10 @@
             .then(response => response.json()) // Convert response to JSON
             .then(data => { // Handle returned data
                 // Handle returned data
+                globalImplementations_1 = data;
+                // 保存数据到 localStorage
+                localStorage.setItem('globalImplementations_1', JSON.stringify(data));
+                
                 const implementations_1 = data.map(item => item.ID).join('<br>');
                 document.getElementById('result').innerHTML = 
                     `${implementations_1}`;
@@ -182,11 +265,167 @@
                     `Error: ${error.message}`;
             });
         }
+
+        // 添加相关的 JavaScript
+        function generatePDFReport() {
+            // 获取所有选择的值
+            const attackType = document.getElementById('Attack_Type').value;
+            const dataModality = document.getElementById('Data_Modality').value;
+            const tasks = document.getElementById('Tasks').value;
+            const learningArchitecture = document.getElementById('Learning_Architecture').value;
+            const modelArchitecture = document.getElementById('Model_Architecture').value;
+            const knowledge = document.getElementById('Knowledge').value;
+            const applicationDomains = document.getElementById('Application_Domains').value;
+
+            // 创建报告内容
+            const reportContent = {
+                title: 'Robust ML Test Bed Report',
+                date: new Date().toLocaleDateString(),
+                clientName: globalClientName,
+                selections: {
+                    '1. Attack type': attackType,
+                    '2. Data Modality': dataModality,
+                    '3. Tasks': tasks,
+                    '4. Learning Architecture': learningArchitecture,
+                    '5. Model Architecture': modelArchitecture,
+                    '6. Knowledge': knowledge,
+                    '7. Application Domains': applicationDomains
+                },
+                queryResults: globalImplementations_1
+
+            };
+
+            // 使用 window.print() 或第三方库生成 PDF
+            // 这里使用简单的 window.print() 演示
+            const printWindow = window.open('', '_blank');
+            printWindow.document.write(`
+                <html>
+                <head>
+                    <title>${reportContent.title}</title>
+                    <style>
+                        body {
+                            font-family: Arial, sans-serif;
+                            padding: 20px;
+                            line-height: 1.6;
+                        }
+                        h1 {
+                            color: #333;
+                            border-bottom: 2px solid #007bff;
+                            padding-bottom: 10px;
+                        }
+                        .report-section {
+                            margin: 20px 0;
+                        }
+                        .report-item {
+                            margin: 10px 0;
+                        }
+                        .label {
+                            font-weight: bold;
+                            color: #007bff;
+                        }
+                    </style>
+                </head>
+                <body>
+                    <h1>${reportContent.title}</h1>
+                    <div class="report-section">
+                        <p>Client Name: ${reportContent.clientName}</p>
+                        <p>Generated on: ${reportContent.date}</p>
+                    </div>
+                    
+                    <div class="report-section">
+                    <p>Model Profiles:</p>
+                        ${Object.entries(reportContent.selections)
+                            .map(([key, value]) => `
+                                <div class="report-item">
+                                    <span class="label">${key}:</span> ${value || 'Not selected'}
+                                </div>
+                            `).join('')}
+                    </div>
+                    
+                    <div class="report-section">
+                        <p>Attack ID:</p>
+                        ${reportContent.queryResults.map((item, index) => `
+                                <div class="report-item">
+                                    <span class="label">${index + 1}.</span> 
+                                    <span class="label">Attack ID:</span> ${item.ID}
+                                </div>
+                            `).join('')}
+                    </div>
+                                        
+                </body>
+                </html>
+            `);
+            printWindow.document.close();
+            printWindow.print();
+        }
+
+        // 添加新的函数，结合搜索和跳转功能
+        async function querySolutionRightAndRedirect() {
+            // 从 localStorage 读取并解析JSON数据
+            const storedData = localStorage.getItem('globalImplementations_1');
+            let Attack_ID;
+            
+            try {
+                const parsedData = JSON.parse(storedData);
+                Attack_ID = parsedData[0]?.ID;
+            } catch (error) {
+                console.error('Error parsing stored data:', error);
+            }
+            
+            if (!Attack_ID) {
+                alert('No Attack ID found. Please select an attack first.');
+                return;
+            }
+            
+            try {
+                const response = await fetch('/api/query-solution-right', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        Attack_ID
+                    })
+                });
+                
+                const data = await response.json();
+                
+                // 将结果存储在 localStorage 中
+                localStorage.setItem('searchResults', JSON.stringify(data));
+                
+                // 跳转到 index-02.html
+                window.location.href = 'index-02.html';
+                
+            } catch (error) {
+                console.error('Error details:', error);
+                alert('Error occurred during search. Please check console for details.');
+            }
+        }
     </script>
+
+    <style>
+    /* 保持与现有按钮样式一致 */
+    #generatePDF, #nextStep {
+        margin-top: 20px;
+        padding: 10px 20px;
+        background-color: #007bff;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 16px;
+        transition: background-color 0.3s ease;
+        margin-right: 10px; /* 添加按钮之间的间距 */
+    }
+
+    #generatePDF:hover, #nextStep:hover {
+        background-color: #0056b3;
+    }
+    </style>
 
     <!-- Foot Section -->
     <footer>
-        <p>&copy; 2023 Your Website Name. All rights reserved.</p>
+        <p>&copy; 2024 Robust ML Test Bed. All rights reserved.</p>
         <p><a href="#privacy">Privacy Policy</a> | <a href="#terms">Terms of Service</a></p>
     </footer>
 </body>

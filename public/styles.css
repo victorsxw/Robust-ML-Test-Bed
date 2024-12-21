@@ -87,4 +87,18 @@ footer {
     padding: 10px 0;
     background-color: #4CAF50;
     color: white;
-} 
+}
+
+.hero-button {
+    background-color: #007bff;
+}
+
+.logo {
+    height: 60px;
+}
+
+.hero-section {
+    background-image: url('../images/bg/background.jpeg');
+    background-size: cover;
+    background-position: center;
+}

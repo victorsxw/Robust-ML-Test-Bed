@@ -5,6 +5,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Welcome to Robust ML Test Bed</title>
     <link rel="stylesheet" href="styles.css">
+    <style>
+        .result-container {
+            margin: 20px;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            background-color: #f9f9f9;
+            min-height: 100px;
+        }
+    </style>
 </head>
 <body>
     <!-- Head Section -->
@@ -17,9 +27,9 @@
             </ul>
         </nav>
     </header>
-
+    <!-- V1.0 Using the right panel to select the attack ID
     <div class="container">
-        <!-- right panel structure -->
+        // right panel structure 
         <div class="right-panel">
             <h1>Attack Implementation</h1>
             <div class="form-container">
@@ -27,41 +37,41 @@
                     <label>Attack ID:</label>
                     <select id="Attack_ID">
                         <option value="" style="font-weight:bold;">Select Attack ID</option>
-                        <!-- Out-of-Distribution Attacks -->
+                        //Out-of-Distribution Attacks 
                         <optgroup label="Out-of-Distribution Attacks">
                             <option value="A_OOD_001">A_OOD_001</option>
                         </optgroup>
-                        <!-- Property Inference Attacks -->
+                        // Property Inference Attacks 
                         <optgroup label="Property Inference Attacks">
                             <option value="A_Property_inference_Attack_001">A_Property_inference_Attack_001</option>
                         </optgroup>
-                        <!-- Jailbreak Attacks -->
+                        //Jailbreak Attacks 
                         <optgroup label="Jailbreak Attacks">
                             <option value="A_Jailbreak_001">A_Jailbreak_001</option>
                             <option value="A_Jailbreak_002">A_Jailbreak_002</option>
                         </optgroup>
-                        <!-- Indirect Prompt Injection -->
+                        //Indirect Prompt Injection 
                         <optgroup label="Indirect Prompt Injection">
                             <option value="A_Indirect_Prompt_injection_1">A_Indirect_Prompt_injection_1</option>
                             <option value="A_Indirect_Prompt_injection_2">A_Indirect_Prompt_injection_2</option>
                         </optgroup>
-                        <!-- GAI Poisoning -->
+                        //GAI Poisoning 
                         <optgroup label="GAI Poisoning">
                             <option value="A_GAI_Poisoning_001">A_GAI_Poisoning_001</option>
                             <option value="A_GAI_Poisoning_002">A_GAI_Poisoning_002</option>
                         </optgroup>
-                        <!-- Goal Hijacking -->
+                        //Goal Hijacking 
                         <optgroup label="Goal Hijacking">
                             <option value="A_Goal_Hijacking_001">A_Goal_Hijacking_001</option>
                             <option value="A_Goal_Hijacking_002">A_Goal_Hijacking_002</option>
                         </optgroup>
-                        <!-- Reconstruction Attacks -->
+                        // Reconstruction Attacks 
                         <optgroup label="Reconstruction Attacks">
                             <option value="A_Reconstruction_001">A_Reconstruction_001</option>
                             <option value="A_Reconstruction_002">A_Reconstruction_002</option>
                             <option value="A_Reconstruction_003">A_Reconstruction_003</option>
                         </optgroup>
-                        <!-- Membership Inference -->
+                        //Membership Inference  
                         <optgroup label="Membership Inference">
                             <option value="A_Membership_inference_001">A_Membership_inference_001</option>
                             <option value="A_Membership_inference_002">A_Membership_inference_002</option>
@@ -70,7 +80,7 @@
                             <option value="A_Membership_inference_005">A_Membership_inference_005</option>
                             <option value="A_Membership_inference_006">A_Membership_inference_006</option>
                         </optgroup>
-                        <!-- Backdoor Attacks -->
+                        //Backdoor Attacks  
                         <optgroup label="Backdoor Attacks">
                             <option value="A_Backdoor_001">A_Backdoor_001</option>
                             <option value="A_Backdoor_002">A_Backdoor_002</option>
@@ -81,7 +91,7 @@
                             <option value="A_Backdoor_007">A_Backdoor_007</option>
                             <option value="A_Backdoor_008">A_Backdoor_008</option>
                         </optgroup>
-                        <!-- Poisoning Attacks -->
+                        // Poisoning Attacks  
                         <optgroup label="Poisoning Attacks">
                             <option value="A_Poisoning_001">A_Poisoning_001</option>
                             <option value="A_Poisoning_002">A_Poisoning_002</option>
@@ -96,7 +106,7 @@
                             <option value="A_Poisoning_011">A_Poisoning_011</option>
                             <option value="A_Poisoning_012">A_Poisoning_012</option>
                         </optgroup>
-                        <!-- Evasion Attacks -->
+                        //Evasion Attacks  
                         <optgroup label="Evasion Attacks">
                             <option value="A_Evasion_001">A_Evasion_001</option>
                             <option value="A_Evasion_002">A_Evasion_002</option>
@@ -124,6 +134,13 @@
             </div>
         </div>
     </div>   
+    -->
+
+    <!-- V2.0 Without selections, directly select the implementation ID after Input1 -->
+    <div>
+        <!-- 只保留结果显示区域 -->
+        <div id="result-right" class="result-container">Results will appear here...</div>
+    </div>
 
     <!-- Third panel structure -->
     <div class="third-panel">
@@ -151,19 +168,17 @@
         // Global variables
         let uploadedFileName = ''; // Store uploaded file path
         let globalImplementationIDArray = []; // Store Implementation IDs
-
-             // right panel search function
-             function querySolutionRight() {
+       
+/* V1.0 Using the right panel to select the attack ID
+            // right panel search function
+            function querySolutionRight() {
                 const Attack_ID = document.getElementById('Attack_ID').value;// 获取攻击ID的值
-                
                 // 获取攻击ID的值
                 if (!Attack_ID) {
                     alert('Please select the field');// 获取攻击ID的值
                     return;
                 }
-
                 document.getElementById('result-right').innerHTML = 'Sending request...';// 设置发送请求时的提示文本
-                
                 // 发送POST请求到后端API
                 fetch('/api/query-solution-right', {
                     method: 'POST',
@@ -183,15 +198,86 @@
                     const implementations = data.map(item => item.Implementation_ID).join('<br>');
                     document.getElementById('result-right').innerHTML = 
                         `${implementations}`;
-                    
                 })
                 .catch(error => {// 显示错误信息
                     document.getElementById('result-right').innerHTML = 
                         `Error: ${error.message}`;
                 });
             }
-            
-            // 声明全局变量存储上传文件的路径
+*/
+   
+/* V2.0 Without selections, directly select the implementation ID after Input1 */
+           // right panel search function
+           function querySolutionRight() {
+                // 从 localStorage 读取并解析JSON数据
+                const storedData = localStorage.getItem('globalImplementations_1');
+                let Attack_ID;
+                
+                try {
+                    const parsedData = JSON.parse(storedData);
+                    // 从数组中获取第一个对象的ID属性
+                    Attack_ID = parsedData[0]?.ID;
+                } catch (error) {
+                    console.error('Error parsing stored data:', error);
+                }
+                
+                if (!Attack_ID) {
+                    alert('No Attack ID found. Please select an attack from Input 1 first.');
+                    return;
+                }
+                
+                document.getElementById('result-right').innerHTML = 'Sending request...';
+                
+                fetch('/api/query-solution-right', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        Attack_ID
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    console.log('Received data:', data);
+                    
+                    if (data && data.data) {
+                        globalImplementationIDArray = Array.isArray(data.data) ? data.data : [data.data];
+                    } else if (Array.isArray(data)) {
+                        globalImplementationIDArray = data;
+                    } else if (typeof data === 'object') {
+                        globalImplementationIDArray = [data];
+                    } else {
+                        throw new Error('Unexpected data format');
+                    }
+
+                    if (globalImplementationIDArray.length === 0) {
+                        document.getElementById('result-right').innerHTML = 'No implementations found';
+                        return;
+                    }
+
+                    const implementations = globalImplementationIDArray
+                        .map(item => {
+                            if (typeof item === 'string') {
+                                return item;
+                            } else if (item && item.Implementation_ID) {
+                                return item.Implementation_ID;
+                            } else {
+                                console.warn('Invalid item format:', item);
+                                return 'Invalid implementation data';
+                            }
+                        })
+                        .filter(id => id)
+                        .join('<br>');
+
+                    document.getElementById('result-right').innerHTML = implementations || 'No valid implementations found';
+                })
+                .catch(error => {
+                    console.error('Error details:', error);
+                    document.getElementById('result-right').innerHTML = 
+                        `Error: ${error.message}. Please check the console for details.`;
+                });
+            }
 
             // 文件上传函数
             function uploadFile() {
@@ -225,7 +311,8 @@
                     alert('Error uploading file');// 提示上传失败
                 });
             }
-            // 提示上传失败
+
+            // 调用python程序
             async function sendToPython() {
                 // 检查是否已上传文件
                 if (!uploadedFileName) {
@@ -300,11 +387,54 @@
                     alert('Error opening results folder');
                 });
             }
+
+            // 页面加载时显示结果
+            window.onload = function() {
+                const searchResults = localStorage.getItem('searchResults');
+                if (searchResults) {
+                    try {
+                        const data = JSON.parse(searchResults);
+                        
+                        if (data && data.data) {
+                            globalImplementationIDArray = Array.isArray(data.data) ? data.data : [data.data];
+                        } else if (Array.isArray(data)) {
+                            globalImplementationIDArray = data;
+                        } else if (typeof data === 'object') {
+                            globalImplementationIDArray = [data];
+                        }
+
+                        if (globalImplementationIDArray.length === 0) {
+                            document.getElementById('result-right').innerHTML = 'No implementations found';
+                            return;
+                        }
+
+                        const implementations = globalImplementationIDArray
+                            .map(item => {
+                                if (typeof item === 'string') {
+                                    return item;
+                                } else if (item && item.Implementation_ID) {
+                                    return item.Implementation_ID;
+                                } else {
+                                    console.warn('Invalid item format:', item);
+                                    return 'Invalid implementation data';
+                                }
+                            })
+                            .filter(id => id)
+                            .join('<br>');
+
+                        document.getElementById('result-right').innerHTML = implementations || 'No valid implementations found';
+                    } catch (error) {
+                        console.error('Error parsing search results:', error);
+                        document.getElementById('result-right').innerHTML = 'Error displaying results';
+                    }
+                }
+            };
+
     </script>
 
     <!-- Foot Section -->
     <footer>
-        <p>&copy; 2023 Your Website Name. All rights reserved.</p>
+        <p>&copy; 2024 Robust ML Test Bed. All rights reserved.</p>
         <p><a href="#privacy">Privacy Policy</a> | <a href="#terms">Terms of Service</a></p>
     </footer>
 </body>
