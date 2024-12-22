@@ -26,9 +26,11 @@
         <div class="client-input">
             <h1>Client Inputs</h1>
             <div class="input-group">
-                <label for="clientName">Please enter your name:</label>
-                <input type="text" id="clientName" placeholder="Enter your name here">
-                <div id="errorMessage" class="error-message">Please enter a valid name</div>
+                <label for="clientName">Please enter client name:</label>
+                <input type="text" 
+                       id="clientName" 
+                       placeholder="Please enter a valid name"
+                       class="input-field">
             </div>
             <button class="submit-btn" onclick="submitClientName()">Confirm</button>
         </div>
@@ -184,32 +186,30 @@
 
 
         function submitClientName() {
-           const clientNameInput = document.getElementById('clientName');
-           const errorMessage = document.getElementById('errorMessage');
-           const name = clientNameInput.value.trim();
+            const clientNameInput = document.getElementById('clientName');
+            const name = clientNameInput.value.trim();
+            
             // 验证输入
-           if (name === '') {
-               errorMessage.style.display = 'block';
-               return;
-           }
+            if (name === '') {
+                clientNameInput.placeholder = 'Please enter a valid name';  // 在输入框中显示提示
+                clientNameInput.classList.add('error');  // 可以添加错误样式
+                return;
+            }
+            
             // 存储用户名
-           globalClientName = name;
-           errorMessage.style.display = 'none';
-            // 可以添加成功提示
-           alert(`Welcome, ${globalClientName}!`);
-            // 跳转到下一个页面或执行其他操作
-           // window.location.href = 'next-page.html';
-       }
-        // 添加回车键提交功能
-       document.getElementById('clientName').addEventListener('keypress', function(e) {
-           if (e.key === 'Enter') {
-               submitClientName();
-           }
-       });
-        // 输入时隐藏错误消息
-       document.getElementById('clientName').addEventListener('input', function() {
-           document.getElementById('errorMessage').style.display = 'none';
-       });        
+            globalClientName = name;
+            
+            // 清除错误状态
+            clientNameInput.classList.remove('error');
+            
+            // 成功提示
+            alert(`Welcome, ${globalClientName}!`);
+        }
+
+        // 输入时重置 placeholder
+        document.getElementById('clientName').addEventListener('input', function() {
+            this.classList.remove('error');
+        });
         
         
         
@@ -363,35 +363,43 @@
         async function querySolutionRightAndRedirect() {
             // 从 localStorage 读取并解析JSON数据
             const storedData = localStorage.getItem('globalImplementations_1');
-            let Attack_ID;
+            let Attack_IDs = [];
             
             try {
                 const parsedData = JSON.parse(storedData);
-                Attack_ID = parsedData[0]?.ID;
+                // 获取所有的ID
+                Attack_IDs = parsedData.map(item => item.ID);
+                
+                if (!Attack_IDs.length) {
+                    alert('No Attack IDs found. Please select an attack first.');
+                    return;
+                }
             } catch (error) {
                 console.error('Error parsing stored data:', error);
-            }
-            
-            if (!Attack_ID) {
-                alert('No Attack ID found. Please select an attack first.');
+                alert('Error parsing stored data. Please try again.');
                 return;
             }
             
             try {
-                const response = await fetch('/api/query-solution-right', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        Attack_ID
-                    })
-                });
+                // 为所有Attack ID发送请求
+                const promises = Attack_IDs.map(Attack_ID => 
+                    fetch('/api/query-solution-right', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ Attack_ID })
+                    }).then(response => response.json())
+                );
                 
-                const data = await response.json();
+                // 等待所有请求完成
+                const results = await Promise.all(promises);
+                
+                // 合并所有结果
+                const combinedResults = results.flat();
                 
                 // 将结果存储在 localStorage 中
-                localStorage.setItem('searchResults', JSON.stringify(data));
+                localStorage.setItem('searchResults', JSON.stringify(combinedResults));
                 
                 // 跳转到 index-02.html
                 window.location.href = 'index-02.html';
@@ -420,6 +428,22 @@
 
     #generatePDF:hover, #nextStep:hover {
         background-color: #0056b3;
+    }
+
+    .input-field {
+        width: 100%;
+        padding: 8px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        font-size: 14px;
+    }
+
+    .input-field.error {
+        border-color: #ff4444;
+    }
+
+    .input-field.error::placeholder {
+        color: #ff4444;
     }
     </style>
 

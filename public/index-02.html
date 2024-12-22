@@ -14,6 +14,54 @@
             background-color: #f9f9f9;
             min-height: 100px;
         }
+
+        .checkbox-container {
+            margin: 20px;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            background-color: #fff;
+        }
+
+        .checkbox-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .checkbox-item {
+            display: flex;
+            align-items: center;
+            padding: 5px;
+        }
+
+        .checkbox-item input[type="checkbox"] {
+            margin-right: 10px;
+            cursor: pointer;
+        }
+
+        .checkbox-item label {
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .checkbox-item:hover {
+            background-color: #f5f5f5;
+        }
+
+        .file-description {
+            margin-right: 10px;
+            color: #666;
+            display: inline-block;
+            vertical-align: middle;
+        }
+
+        .file-inputs {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
     </style>
 </head>
 <body>
@@ -138,28 +186,49 @@
 
     <!-- V2.0 Without selections, directly select the implementation ID after Input1 -->
     <div>
-        <!-- 只保留结果显示区域 -->
-        <div id="result-right" class="result-container">Results will appear here...</div>
+        <!-- 结果显示区域 -->
+        <h1>Results of Input1</h1>
+        <div id="result-right" class="result-container">Results will appear here...</div> 
+        
+        <!-- 添加复选框容器 -->
+        <div class="checkbox-container">
+            <h3>Select Implementations:</h3>
+            <div id="implementation-checkboxes" class="checkbox-list"></div>
+        </div>
     </div>
 
     <!-- Third panel structure -->
     <div class="third-panel">
-        <h1>Implementation Results</h1>
-        <div class="form-container">
+            <div class="form-container">
             <div class="form-group">
                 <label>Upload File:</label>
-                <input type="file" id="fileInput" class="file-input" accept=".h5">
-                <button onclick="uploadFile()">Upload</button>
+                <div class="file-inputs">
+                    <span class="file-description">Upload Model Profile:</span>  <!-- input model profile -->                    
+                    <input type="file" id="fileInput" class="file-input" accept=".h5">
+                    <button class="upload-btn" onclick="uploadFile()">Upload</button>
+                </div>
+                <div class="file-inputs">
+                    <span class="file-description">Upload Training Dataset:</span>  <!-- input training dataset -->                    
+                    <input type="file" id="fileInput" class="file-input" accept=".h5">
+                    <button class="upload-btn" onclick="uploadFile()">Upload</button>
+                </div>
+                <div class="file-inputs">
+                    <span class="file-description">Upload Testing Dataset:</span>  <!-- input testing dataset -->                    
+                    <input type="file" id="fileInput" class="file-input" accept=".h5">
+                    <button class="upload-btn" onclick="uploadFile()">Upload</button>
+                </div>
             </div>
                                     
             <div class="form-group">
-                <button onclick="sendToPython()">Send to Python</button>
-                <button onclick="openExecutionResults()">Execution Results</button>
+                <button onclick="sendToPython()">Security Assessment</button>
             </div>
             
             <div class="form-group">
                 <label>Python Result:</label>
                 <textarea id="pythonResult" rows="10" cols="100" readonly></textarea>
+            </div>
+            <div class="form-group">
+                <button onclick="openAnalysisResults()">Analysis Results</button>
             </div>
         </div>
     </div>
@@ -209,7 +278,7 @@
 /* V2.0 Without selections, directly select the implementation ID after Input1 */
            // right panel search function
            function querySolutionRight() {
-                // 从 localStorage 读取并解析JSON数据
+                // 从 localStorage 获取 globalImplementations_1 数据
                 const storedData = localStorage.getItem('globalImplementations_1');
                 let Attack_ID;
                 
@@ -320,22 +389,37 @@
                     return;
                 }
 
-                // 检查是否有实现ID
-                if (!globalImplementationIDArray || globalImplementationIDArray.length === 0) {
-                    alert('No implementation IDs available');
+                // 获取选中的实现ID
+                const selectedImplementations = getSelectedImplementations();
+                
+                // 在控制台显示选中的ID
+                console.log('Selected Implementation IDs:', selectedImplementations);
+                
+                // 检查是否有选中的实现ID
+                if (!selectedImplementations || selectedImplementations.length === 0) {
+                    alert('Please select at least one implementation');
                     return;
                 }
 
                 const pythonResult = document.getElementById('pythonResult');
-                pythonResult.value = "Starting to process implementations...\n";
+                pythonResult.value = "Starting to process selected implementations...\n";
 
-                // 依次处理每个Implementation ID
-                for (let i = 0; i < globalImplementationIDArray.length; i++) {
-                    const implementation = globalImplementationIDArray[i];
+                // 依次处理每个选中的Implementation ID
+                for (let i = 0; i < selectedImplementations.length; i++) {
+                    const implementation_ID = selectedImplementations[i];
+                    
+                    // 在控制台显示当前正在处理的ID
+                    console.log('Processing Implementation ID:', implementation_ID);
                     
                     try {
                         // 更新处理状态
-                        pythonResult.value += `\nProcessing Implementation ${implementation.Implementation_ID}...\n`;
+                        pythonResult.value += `\nProcessing Implementation ${implementation_ID}...\n`;
+
+                        // 在发送请求前显示请求内容
+                        console.log('Sending request with data:', {
+                            implementation_ID,
+                            upload_file_name: uploadedFileName
+                        });
 
                         // 发送请求到Python后端
                         const response = await fetch('/api/process', {
@@ -344,32 +428,35 @@
                                 'Content-Type': 'application/json'
                             },
                             body: JSON.stringify({
-                                implementation_ID: implementation.Implementation_ID,
+                                implementation_ID,
                                 upload_file_name: uploadedFileName
                             })
                         });
 
                         const data = await response.json();
                         
+                        // 显示响应数据
+                        console.log('Received response for', implementation_ID, ':', data);
+                        
                         // 添加处理结果到显示区域
-                        pythonResult.value += `Result for ${implementation.Implementation_ID}: ${JSON.stringify(data)}\n`;
-
+                        pythonResult.value += `Result for ${implementation_ID}: ${JSON.stringify(data)}\n`;
 
                     } catch (error) {
                         // 记录错误但继续处理下一个
-                        console.error('Error processing:', implementation.Implementation_ID, error);
-                        pythonResult.value += `Error processing ${implementation.Implementation_ID}: ${error.message}\n`;
+                        console.error('Error processing:', implementation_ID, error);
+                        pythonResult.value += `Error processing ${implementation_ID}: ${error.message}\n`;
                     }
 
                     // 可选：添加一个小延迟，确保系统有时间处理
                     await new Promise(resolve => setTimeout(resolve, 1000));
                 }
 
-                pythonResult.value += "\nAll implementations have been processed.";
+                pythonResult.value += "\nAll selected implementations have been processed.";
+                console.log('All processing completed');
             }
 
             // 直接打开执行结果的文件夹
-            function openExecutionResults() {
+            function openAnalysisResults() {
                 fetch('/api/open-results-folder', {
                     method: 'POST'
                 })
@@ -388,7 +475,7 @@
                 });
             }
 
-            // 页面加载时显示结果
+            // 页面加载时显示结果和生成复选框
             window.onload = function() {
                 const searchResults = localStorage.getItem('searchResults');
                 if (searchResults) {
@@ -408,6 +495,7 @@
                             return;
                         }
 
+                        // 显示实现ID列表
                         const implementations = globalImplementationIDArray
                             .map(item => {
                                 if (typeof item === 'string') {
@@ -423,12 +511,44 @@
                             .join('<br>');
 
                         document.getElementById('result-right').innerHTML = implementations || 'No valid implementations found';
+
+                        // 生成复选框
+                        const checkboxContainer = document.getElementById('implementation-checkboxes');
+                        checkboxContainer.innerHTML = ''; // 清空现有内容
+
+                        globalImplementationIDArray.forEach((item, index) => {
+                            const implementation_id = typeof item === 'string' ? item : item.Implementation_ID;
+                            if (!implementation_id) return;
+
+                            const checkboxDiv = document.createElement('div');
+                            checkboxDiv.className = 'checkbox-item';
+
+                            const checkbox = document.createElement('input');
+                            checkbox.type = 'checkbox';
+                            checkbox.id = `impl-${index}`;
+                            checkbox.value = implementation_id;
+
+                            const label = document.createElement('label');
+                            label.htmlFor = `impl-${index}`;
+                            label.textContent = implementation_id;
+
+                            checkboxDiv.appendChild(checkbox);
+                            checkboxDiv.appendChild(label);
+                            checkboxContainer.appendChild(checkboxDiv);
+                        });
+
                     } catch (error) {
                         console.error('Error parsing search results:', error);
                         document.getElementById('result-right').innerHTML = 'Error displaying results';
                     }
                 }
             };
+
+            // 获取选中的实现ID
+            function getSelectedImplementations() {
+                const checkboxes = document.querySelectorAll('#implementation-checkboxes input[type="checkbox"]:checked');
+                return Array.from(checkboxes).map(checkbox => checkbox.value);
+            }
 
     </script>
 
