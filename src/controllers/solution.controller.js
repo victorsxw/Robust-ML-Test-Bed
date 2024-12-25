@@ -4,6 +4,7 @@ const Solution = require("../models/solution.model.js");
 const findSolution = (req, res) => {
 
     const {
+        Attack_Type,
         Data_Modality, 
         Tasks, 
         Learning_Architecture, 
@@ -13,7 +14,7 @@ const findSolution = (req, res) => {
     } = req.body;
 
     // Validate request
-    if (!Data_Modality || !Tasks || !Learning_Architecture || 
+    if (!Attack_Type || !Data_Modality || !Tasks || !Learning_Architecture || 
         !Model_Architecture || !Knowledge || !Application_Domains) {
         res.status(400).send({
             message: "All fields are required!"
@@ -22,6 +23,7 @@ const findSolution = (req, res) => {
     }
 
     Solution.findByCriteria(
+        Attack_Type,
         Data_Modality,
         Tasks,
         Learning_Architecture,

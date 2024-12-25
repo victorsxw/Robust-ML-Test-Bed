@@ -5,6 +5,41 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Welcome to Robust ML Test Bed</title>
     <link rel="stylesheet" href="styles.css">
+    <style>
+        /* 保持与现有按钮样式一致 */
+        #generatePDF, #nextStep {
+            margin-top: 20px;
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s ease;
+            margin-right: 10px; /* 添加按钮之间的间距 */
+        }
+    
+        #generatePDF:hover, #nextStep:hover {
+            background-color: #0056b3;
+        }
+    
+        .input-field {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+    
+        .input-field.error {
+            border-color: #ff4444;
+        }
+    
+        .input-field.error::placeholder {
+            color: #ff4444;
+        }
+        </style>
 </head>
 <body>
     <!-- Head Section -->
@@ -26,7 +61,7 @@
         <div class="client-input">
             <h1>Client Inputs</h1>
             <div class="input-group">
-                <label for="clientName">Please enter client name:</label>
+                <label for="clientName">Please Enter Client Name:</label>
                 <input type="text" 
                        id="clientName" 
                        placeholder="Please enter a valid name"
@@ -44,7 +79,7 @@
                     <select id="Attack_Type">
                         <option value="" style="font-weight:bold;">Select Attack Type</option>
                         <option value="ALL">ALL</option>                        
-                        <option value="Poinson Attack">Poinson Attack</option>
+                        <option value="Poinsoning Attack">Poinsoning Attack</option>
                         <option value="Evasion Attack">Evasion Attack</option>
                         <option value="Privacy Attack">Privacy Attack</option>
                         <option value="Jailbreak Attack">Jailbreak Attack</option>
@@ -219,6 +254,7 @@
             console.log('Query function called'); // Log function call
             
             // Get all select box values
+            const Attack_Type = document.getElementById('Attack_Type').value;
             const Data_Modality = document.getElementById('Data_Modality').value;
             const Tasks = document.getElementById('Tasks').value;
             const Learning_Architecture = document.getElementById('Learning_Architecture').value;
@@ -240,6 +276,7 @@
                     'Content-Type': 'application/json' // Set content type to JSON
                 },
                 body: JSON.stringify({ // Set content type to JSON
+                    Attack_Type,
                     Data_Modality,
                     Tasks,
                     Learning_Architecture,
@@ -411,41 +448,7 @@
         }
     </script>
 
-    <style>
-    /* 保持与现有按钮样式一致 */
-    #generatePDF, #nextStep {
-        margin-top: 20px;
-        padding: 10px 20px;
-        background-color: #007bff;
-        color: white;
-        border: none;
-        border-radius: 4px;
-        cursor: pointer;
-        font-size: 16px;
-        transition: background-color 0.3s ease;
-        margin-right: 10px; /* 添加按钮之间的间距 */
-    }
-
-    #generatePDF:hover, #nextStep:hover {
-        background-color: #0056b3;
-    }
-
-    .input-field {
-        width: 100%;
-        padding: 8px;
-        border: 1px solid #ddd;
-        border-radius: 4px;
-        font-size: 14px;
-    }
-
-    .input-field.error {
-        border-color: #ff4444;
-    }
-
-    .input-field.error::placeholder {
-        color: #ff4444;
-    }
-    </style>
+    
 
     <!-- Foot Section -->
     <footer>

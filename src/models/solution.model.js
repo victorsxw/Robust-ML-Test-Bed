@@ -1,6 +1,7 @@
 const sql = require("../config/db.config.js");
 
 const Solution = function(solution) {
+    this.Attack_Type = solution.Attack_Type;
     this.Data_Modality = solution.Data_Modality;
     this.Tasks = solution.Tasks;
     this.Learning_Architecture = solution.Learning_Architecture;
@@ -11,6 +12,7 @@ const Solution = function(solution) {
 };
 
 Solution.findByCriteria = (
+    Attack_Type,
     Data_Modality, 
     Tasks, 
     Learning_Architecture, 
@@ -22,7 +24,11 @@ Solution.findByCriteria = (
     sql.query(
         `SELECT DISTINCT ID 
          FROM attack.attack
-         WHERE Data_Modality =          CASE 
+         WHERE Attack_Type =            CASE 
+                                        WHEN ? = 'ALL' THEN Attack_Type
+                                        ELSE ?
+                                        END      
+         AND Data_Modality =            CASE 
                                         WHEN ? = 'ALL' THEN Data_Modality
                                         ELSE ?
                                         END 
@@ -47,6 +53,7 @@ Solution.findByCriteria = (
                                         ELSE ?
                                         END`,
         [
+            Attack_Type, Attack_Type,           
             Data_Modality, Data_Modality,           
             Tasks, Tasks,                            
             Learning_Architecture, Learning_Architecture,  

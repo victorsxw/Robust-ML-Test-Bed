@@ -48,7 +48,7 @@ nav ul li a {
 
 label {
     display: inline-block;
-    width: 150px;
+    width: 250px;
     font-weight: bold;
 }
 
@@ -101,4 +101,34 @@ footer {
     background-image: url('../images/bg/background.jpeg');
     background-size: cover;
     background-position: center;
+}
+
+.upload-section {
+    margin: 20px 0;
+    padding: 15px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+}
+
+.upload-section label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: bold;
+}
+
+.upload-section input[type="file"] {
+    margin-bottom: 10px;
+}
+
+.upload-section button {
+    padding: 8px 15px;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.upload-section button:hover {
+    background-color: #45a049;
 }

@@ -62,6 +62,40 @@
             align-items: center;
             gap: 10px;
         }
+
+        #generatePDF, #nextStep {
+            margin-top: 20px;
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s ease;
+            margin-right: 10px; /* 添加按钮之间的间距 */
+        }
+
+        #generatePDF:hover, #nextStep:hover {
+            background-color: #0056b3;
+        }
+
+        .input-field {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+
+        .input-field.error {
+            border-color: #ff4444;
+        }
+
+        .input-field.error::placeholder {
+            color: #ff4444;
+        }
+    
     </style>
 </head>
 <body>
@@ -186,10 +220,10 @@
 
     <!-- V2.0 Without selections, directly select the implementation ID after Input1 -->
     <div>
-        <!-- 结果显示区域 -->
+        <!-- 结果显示区域 ，如果不需要显示，则删除，同时删除document.getElementById('result-right').innerHTML-->
         <h1>Results of Input1</h1>
         <div id="result-right" class="result-container">Results will appear here...</div> 
-        
+    
         <!-- 添加复选框容器 -->
         <div class="checkbox-container">
             <h3>Select Implementations:</h3>
@@ -199,39 +233,52 @@
 
     <!-- Third panel structure -->
     <div class="third-panel">
-            <div class="form-container">
-            <div class="form-group">
-                <label>Upload File:</label>
-                <div class="file-inputs">
-                    <span class="file-description">Upload Model Profile:</span>  <!-- input model profile -->                    
-                    <input type="file" id="fileInput" class="file-input" accept=".h5">
-                    <button class="upload-btn" onclick="uploadFile()">Upload</button>
-                </div>
-                <div class="file-inputs">
-                    <span class="file-description">Upload Training Dataset:</span>  <!-- input training dataset -->                    
-                    <input type="file" id="fileInput" class="file-input" accept=".h5">
-                    <button class="upload-btn" onclick="uploadFile()">Upload</button>
-                </div>
-                <div class="file-inputs">
-                    <span class="file-description">Upload Testing Dataset:</span>  <!-- input testing dataset -->                    
-                    <input type="file" id="fileInput" class="file-input" accept=".h5">
-                    <button class="upload-btn" onclick="uploadFile()">Upload</button>
-                </div>
+            <!-- 原有的模型文件上传 -->
+            <div class="upload-section">
+                <label for="modelFileInput">Upload Model Profile (required):</label>
+                <input type="file" id="modelFileInput" accept=".h5">
+                <button onclick="uploadModelFile()">Upload </button>
             </div>
-                                    
+
+            <!-- 数据集1文件上传 -->
+            <div class="upload-section">
+                <label for="dataset1Input">Upload Dataset 1 (optional):</label>
+                <input type="file" id="dataset1Input" accept=".csv">
+                <button onclick="uploadDataset1()">Upload </button>
+            </div>
+
+            <!-- 数据集2文件上传 -->
+            <div class="upload-section">
+                <label for="dataset2Input">Upload Dataset 2 (optional):</label>
+                <input type="file" id="dataset2Input" accept=".csv">
+                <button onclick="uploadDataset2()">Upload </button>
+            </div>
+
+            <!-- 安全评估按钮 -->
             <div class="form-group">
                 <button onclick="sendToPython()">Security Assessment</button>
             </div>
             
+            <!-- 安全评估结果显示 -->
             <div class="form-group">
-                <label>Python Result:</label>
+                <label>Assessment Result:</label>
                 <textarea id="pythonResult" rows="10" cols="100" readonly></textarea>
             </div>
+
+            <!-- 安全评估结果文件夹打开 -->
             <div class="form-group">
                 <button onclick="openAnalysisResults()">Analysis Results</button>
             </div>
+           
+            <div class="form-group">
+                <button id="generatePDF" class="btn" onclick="generateFinalReport()">
+                    Generate Final Report
+                </button>
+            </div>
+
         </div>
     </div>
+
 
     <script>
         // Global variables
@@ -348,36 +395,92 @@
                 });
             }
 
-            // 文件上传函数
-            function uploadFile() {
-                const fileInput = document.getElementById('fileInput');// 获取文件输入元素
-                const file = fileInput.files[0];// 获取选择的第一个文件
+            // 模型文件上传函数（必需）
+            function uploadModelFile() {
+                const fileInput = document.getElementById('modelFileInput');
+                const file = fileInput.files[0];
+                
                 if (!file) {
-                    alert('Please select a file first');// 如果未选择文件则提示
+                    alert('Please select a model file first');
                     return;
                 }
-                //检查文件名后缀是否为.h5
+                
+                // 检查文件扩展名
                 const fileExtension = file.name.split('.').pop().toLowerCase();
                 if (fileExtension !== 'h5') {
                     alert('Only .h5 file format is allowed');
                     return;
-    }
+                }
                 
-                const formData = new FormData();// 创建FormData对象用于文件上传
-                formData.append('file', file);// 将文件添加到表单数据中
-                 // 发送文件上传请求
+                uploadFileToServer(file, 'model');
+            }
+
+            // 数据集1上传函数（可选）
+            function uploadDataset1() {
+                const fileInput = document.getElementById('dataset1Input');
+                const file = fileInput.files[0];
+                
+                if (!file) {
+                    alert('Please select a file for Dataset 1');
+                    return;
+                }
+                
+                // 检查文件扩展名
+                const fileExtension = file.name.split('.').pop().toLowerCase();
+                if (fileExtension !== 'csv') {
+                    alert('Only .csv file format is allowed');
+                    return;
+                }
+                
+                uploadFileToServer(file, 'dataset1');
+            }
+
+            // 数据集2上传函数（可选）
+            function uploadDataset2() {
+                const fileInput = document.getElementById('dataset2Input');
+                const file = fileInput.files[0];
+                
+                if (!file) {
+                    alert('Please select a file for Dataset 2');
+                    return;
+                }
+                
+                // 检查文件扩展名
+                const fileExtension = file.name.split('.').pop().toLowerCase();
+                if (fileExtension !== 'csv') {
+                    alert('Only .csv file format is allowed');
+                    return;
+                }
+                
+                uploadFileToServer(file, 'dataset2');
+            }
+
+            // 通用文件上传处理函数
+            function uploadFileToServer(file, fileType) {
+                const formData = new FormData();
+                formData.append('file', file);
+                formData.append('type', fileType);
+                
                 fetch('/api/upload', {
                     method: 'POST',
                     body: formData
                 })
                 .then(response => response.json())
                 .then(data => {
-                    uploadedFileName = file.name.replace(/\.h5$/, '');// 保存返回的文件路径
-                    alert('File uploaded successfully');// 提示上传成功
+                    if (fileType === 'model') {
+                        uploadedFileName = file.name.replace(/\.h5$/, '');
+                    }
+                    if (fileType === 'dataset1') {
+                        uploadedFileName = file.name.replace(/\.csv$/, '');
+                    }
+                    if (fileType === 'dataset2') {
+                        uploadedFileName = file.name.replace(/\.csv$/, '');
+                    }
+                    alert(`${fileType.charAt(0).toUpperCase() + fileType.slice(1)} file uploaded successfully`);
                 })
                 .catch(error => {
-                    console.error('Error:', error);// 在控制台记录错误
-                    alert('Error uploading file');// 提示上传失败
+                    console.error('Error:', error);
+                    alert(`Error uploading ${fileType} file`);
                 });
             }
 
@@ -442,7 +545,7 @@
                         pythonResult.value += `Result for ${implementation_ID}: ${JSON.stringify(data)}\n`;
 
                     } catch (error) {
-                        // 记录错误但继续处理下一个
+                        // 记录错误但继续处理一个
                         console.error('Error processing:', implementation_ID, error);
                         pythonResult.value += `Error processing ${implementation_ID}: ${error.message}\n`;
                     }
@@ -477,11 +580,14 @@
 
             // 页面加载时显示结果和生成复选框
             window.onload = function() {
+                // 从localStorage中获取之前存储的搜索结果
                 const searchResults = localStorage.getItem('searchResults');
                 if (searchResults) {
                     try {
+                        // 将JSON字符串解析为JavaScript对象
                         const data = JSON.parse(searchResults);
                         
+                        // 处理不同格式的数据，确保globalImplementationIDArray是一个数组
                         if (data && data.data) {
                             globalImplementationIDArray = Array.isArray(data.data) ? data.data : [data.data];
                         } else if (Array.isArray(data)) {
@@ -490,12 +596,13 @@
                             globalImplementationIDArray = [data];
                         }
 
+                        // 如果没有实现数据，显示提示信息并返回
                         if (globalImplementationIDArray.length === 0) {
                             document.getElementById('result-right').innerHTML = 'No implementations found';
                             return;
                         }
 
-                        // 显示实现ID列表
+                        // 将实现ID转换为HTML字符串，处理不同的数据格式
                         const implementations = globalImplementationIDArray
                             .map(item => {
                                 if (typeof item === 'string') {
@@ -507,37 +614,46 @@
                                     return 'Invalid implementation data';
                                 }
                             })
-                            .filter(id => id)
-                            .join('<br>');
+                            .filter(id => id)  // 过滤掉无效的ID
+                            .join('<br>');     // 用换行符连接所有ID
 
+                        // 在结果容器中显示实现ID列表，如果不需要显示，则删除，同时删除<div id="result-right" class="result-container">
                         document.getElementById('result-right').innerHTML = implementations || 'No valid implementations found';
 
-                        // 生成复选框
+                        // 获取复选框容器元
                         const checkboxContainer = document.getElementById('implementation-checkboxes');
-                        checkboxContainer.innerHTML = ''; // 清空现有内容
+                        // 清空容器中的现有内容
+                        checkboxContainer.innerHTML = '';
 
+                        // 为每个实现ID创建复选框
                         globalImplementationIDArray.forEach((item, index) => {
+                            // 获取实现ID，处理不同的数据格式
                             const implementation_id = typeof item === 'string' ? item : item.Implementation_ID;
-                            if (!implementation_id) return;
+                            if (!implementation_id) return;  // 如果没有有效的ID则跳过
 
+                            // 创建复选框容器div
                             const checkboxDiv = document.createElement('div');
                             checkboxDiv.className = 'checkbox-item';
 
+                            // 创建复选框input元素
                             const checkbox = document.createElement('input');
                             checkbox.type = 'checkbox';
                             checkbox.id = `impl-${index}`;
                             checkbox.value = implementation_id;
 
+                            // 创建复选框标签
                             const label = document.createElement('label');
                             label.htmlFor = `impl-${index}`;
                             label.textContent = implementation_id;
 
+                            // 将复选框和标签添加到容器中
                             checkboxDiv.appendChild(checkbox);
                             checkboxDiv.appendChild(label);
                             checkboxContainer.appendChild(checkboxDiv);
                         });
 
                     } catch (error) {
+                        // 如果解析过程出错，在控制台显示错误并更新UI提示
                         console.error('Error parsing search results:', error);
                         document.getElementById('result-right').innerHTML = 'Error displaying results';
                     }
@@ -548,6 +664,121 @@
             function getSelectedImplementations() {
                 const checkboxes = document.querySelectorAll('#implementation-checkboxes input[type="checkbox"]:checked');
                 return Array.from(checkboxes).map(checkbox => checkbox.value);
+            }
+            
+            // 生成最终报告
+            function generateFinalReport() {
+                // 检查是有选中的实现ID
+                const selectedImplementations = getSelectedImplementations();
+                if (!selectedImplementations || selectedImplementations.length === 0) {
+                    alert('Please select at least one implementation before generating the report');
+                    return;
+                }
+
+                // 检查是否已上传文件
+                if (!uploadedFileName) {
+                    alert('Please upload required files before generating the report');
+                    return;
+                }
+
+                // 获取评估结果文本
+                const assessmentResult = document.getElementById('pythonResult').value;
+
+                // 创建打印页面的内容
+                const printWindow = window.open('', '_blank');
+                printWindow.document.write(`
+                    <!DOCTYPE html>
+                    <html>
+                    <head>
+                        <title>Security Assessment Report</title>
+                        <style>
+                            body {
+                                font-family: Arial, sans-serif;
+                                margin: 40px;
+                                line-height: 1.6;
+                            }
+                            .header {
+                                text-align: center;
+                                margin-bottom: 30px;
+                            }
+                            .section {
+                                margin-bottom: 20px;
+                            }
+                            .section-title {
+                                font-size: 18px;
+                                font-weight: bold;
+                                margin-bottom: 10px;
+                                color: #333;
+                            }
+                            .content {
+                                margin-left: 20px;
+                            }
+                            .timestamp {
+                                color: #666;
+                                font-size: 14px;
+                            }
+                            pre {
+                                background-color: #f5f5f5;
+                                padding: 10px;
+                                border-radius: 4px;
+                                overflow-x: auto;
+                            }
+                            @media print {
+                                body {
+                                    margin: 20px;
+                                }
+                                pre {
+                                    white-space: pre-wrap;
+                                    word-wrap: break-word;
+                                }
+                            }
+                        </style>
+                    </head>
+                    <body>
+                        <div class="header">
+                            <h1>Security Assessment Report</h1>
+                            <p class="timestamp">Generated on: ${new Date().toLocaleString()}</p>
+                        </div>
+
+                        <div class="section">
+                            <div class="section-title">Model Information</div>
+                            <div class="content">
+                                <p>Model File: ${uploadedFileName}</p>
+                            </div>
+                        </div>
+
+                        <div class="section">
+                            <div class="section-title">Selected Implementations</div>
+                            <div class="content">
+                                <ul>
+                                    ${selectedImplementations.map(impl => `<li>${impl}</li>`).join('')}
+                                </ul>
+                            </div>
+                        </div>
+
+                        <div class="section">
+                            <div class="section-title">Assessment Results</div>
+                            <div class="content">
+                                <pre>${assessmentResult}</pre>
+                            </div>
+                        </div>
+
+                        <div class="section">
+                            <div class="section-title">Additional Notes</div>
+                            <div class="content">
+                                <p>This report was automatically generated by the Robust ML Test Bed system.</p>
+                            </div>
+                        </div>
+                    </body>
+                    </html>
+                `);
+
+                // 等待内容加载完成后打印
+                printWindow.document.close();
+                printWindow.onload = function() {
+                    printWindow.print();
+                    // printWindow.close(); // 如果想在打印后自动关闭窗口，取消这行的注释
+                };
             }
 
     </script>
