@@ -95,7 +95,36 @@
         .input-field.error::placeholder {
             color: #ff4444;
         }
-    
+
+        .loading-spinner {
+            display: none;  /* 默认隐藏 */
+            margin-left: 10px;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #3498db;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            vertical-align: middle;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .processing-status {
+            display: none;
+            margin-left: 10px;
+            color: #666;
+            font-style: italic;
+        }
+        /* 添加反白样式 */
+        .active {
+        background-color: #eaeef1; /* 反白背景颜色 */
+        color: rgb(35, 231, 9); /* 反白文字颜色 */
+        border-radius: 8px; /* 圆角效果 */
+    }
     </style>
 </head>
 <body>
@@ -104,8 +133,8 @@
         <h1><a href="index.html" style="color: inherit; text-decoration: none;">Welcome to Robust ML Test Bed</a></h1>
         <nav>
             <ul>
-                <li><a href="index-01.html">INPUT1</a></li>
-                <li><a href="index-02.html">INPUT2</a></li>
+                <li><a href="index-01.html">Vulnerability Assessment</a></li>
+                <li><a href="index-02.html" class="active">Exploitation Assessment</a></li>
             </ul>
         </nav>
     </header>
@@ -220,10 +249,11 @@
 
     <!-- V2.0 Without selections, directly select the implementation ID after Input1 -->
     <div>
-        <!-- 结果显示区域 ，如果不需要显示，则删除，同时删除document.getElementById('result-right').innerHTML-->
+        <!-- 结果显示区域 ，如果不需要显示，则删除，同时删除document.getElementById('result-right').innerHTML
         <h1>Results of Input1</h1>
         <div id="result-right" class="result-container">Results will appear here...</div> 
-    
+        -->
+
         <!-- 添加复选框容器 -->
         <div class="checkbox-container">
             <h3>Select Implementations:</h3>
@@ -242,37 +272,41 @@
 
             <!-- 数据集1文件上传 -->
             <div class="upload-section">
-                <label for="dataset1Input">Upload Dataset 1 (optional):</label>
+                <label for="dataset1Input">Upload Training Dataset (optional):</label>
                 <input type="file" id="dataset1Input" accept=".csv">
                 <button onclick="uploadDataset1()">Upload </button>
             </div>
 
             <!-- 数据集2文件上传 -->
             <div class="upload-section">
-                <label for="dataset2Input">Upload Dataset 2 (optional):</label>
+                <label for="dataset2Input">Upload Test Dataset (optional):</label>
                 <input type="file" id="dataset2Input" accept=".csv">
                 <button onclick="uploadDataset2()">Upload </button>
             </div>
 
             <!-- 安全评估按钮 -->
             <div class="form-group">
-                <button onclick="sendToPython()">Security Assessment</button>
+                <div style="display: flex; align-items: center;">
+                    <button onclick="sendToPython()">Exploitation Assessment</button>
+                    <div id="loadingSpinner" class="loading-spinner"></div>
+                    <span id="processingStatus" class="processing-status">Processing...</span>
+                </div>
             </div>
             
             <!-- 安全评估结果显示 -->
             <div class="form-group">
-                <label>Assessment Result:</label>
+                <!--<label>Assessment Result:</label>-->
                 <textarea id="pythonResult" rows="10" cols="100" readonly></textarea>
             </div>
 
             <!-- 安全评估结果文件夹打开 -->
             <div class="form-group">
-                <button onclick="openAnalysisResults()">Analysis Results</button>
+                <button onclick="openAnalysisResults()">Open Results Files</button>
             </div>
            
             <div class="form-group">
                 <button id="generatePDF" class="btn" onclick="generateFinalReport()">
-                    Generate Final Report
+                    Generate EA Report
                 </button>
             </div>
 
@@ -396,6 +430,7 @@
             }
 
             // 模型文件上传函数（必需）
+            let modelFileName = '';
             function uploadModelFile() {
                 const fileInput = document.getElementById('modelFileInput');
                 const file = fileInput.files[0];
@@ -411,11 +446,13 @@
                     alert('Only .h5 file format is allowed');
                     return;
                 }
-                
+                    // 记录文件名
+                modelFileName = file.name;
                 uploadFileToServer(file, 'model');
             }
 
             // 数据集1上传函数（可选）
+            let dataset1FileName = '';
             function uploadDataset1() {
                 const fileInput = document.getElementById('dataset1Input');
                 const file = fileInput.files[0];
@@ -431,11 +468,12 @@
                     alert('Only .csv file format is allowed');
                     return;
                 }
-                
+                dataset1FileName = file.name;
                 uploadFileToServer(file, 'dataset1');
             }
 
             // 数据集2上传函数（可选）
+            let dataset2FileName = '';
             function uploadDataset2() {
                 const fileInput = document.getElementById('dataset2Input');
                 const file = fileInput.files[0];
@@ -451,7 +489,7 @@
                     alert('Only .csv file format is allowed');
                     return;
                 }
-                
+                dataset2FileName = file.name;
                 uploadFileToServer(file, 'dataset2');
             }
 
@@ -486,76 +524,107 @@
 
             // 调用python程序
             async function sendToPython() {
+                // 显示加载动画和状态
+                const spinner = document.getElementById('loadingSpinner');
+                const status = document.getElementById('processingStatus');
+                spinner.style.display = 'inline-block';
+                status.style.display = 'inline-block';
+                status.textContent = 'Processing...';
+
                 // 检查是否已上传文件
                 if (!uploadedFileName) {
                     alert('Please upload a file first');
+                    hideLoadingElements();
                     return;
                 }
 
                 // 获取选中的实现ID
                 const selectedImplementations = getSelectedImplementations();
-                
+
                 // 在控制台显示选中的ID
                 console.log('Selected Implementation IDs:', selectedImplementations);
-                
+
                 // 检查是否有选中的实现ID
                 if (!selectedImplementations || selectedImplementations.length === 0) {
                     alert('Please select at least one implementation');
+                    hideLoadingElements();
                     return;
                 }
 
                 const pythonResult = document.getElementById('pythonResult');
                 pythonResult.value = "Starting to process selected implementations...\n";
 
-                // 依次处理每个选中的Implementation ID
-                for (let i = 0; i < selectedImplementations.length; i++) {
-                    const implementation_ID = selectedImplementations[i];
-                    
-                    // 在控制台显示当前正在处理的ID
-                    console.log('Processing Implementation ID:', implementation_ID);
-                    
-                    try {
-                        // 更新处理状态
-                        pythonResult.value += `\nProcessing Implementation ${implementation_ID}...\n`;
+                try {
+                    // 依次处理每个选中的Implementation ID
+                    for (let i = 0; i < selectedImplementations.length; i++) {
+                        const implementation_ID = selectedImplementations[i];
+                        
+                        // 在控制台显示当前正在处理的ID
+                        console.log('Processing Implementation ID:', implementation_ID);
+                        
+                        try {
+                            // 更新处理状态
+                            pythonResult.value += `\nProcessing Implementation ${implementation_ID}...\n`;
+                            status.textContent = `Processing Implementation ${implementation_ID}...`;
 
-                        // 在发送请求前显示请求内容
-                        console.log('Sending request with data:', {
-                            implementation_ID,
-                            upload_file_name: uploadedFileName
-                        });
-
-                        // 发送请求到Python后端
-                        const response = await fetch('/api/process', {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json'
-                            },
-                            body: JSON.stringify({
+                            // 在发送请求前显示请求内容
+                            console.log('Sending request with data:', {
                                 implementation_ID,
                                 upload_file_name: uploadedFileName
-                            })
-                        });
+                            });
 
-                        const data = await response.json();
-                        
-                        // 显示响应数据
-                        console.log('Received response for', implementation_ID, ':', data);
-                        
-                        // 添加处理结果到显示区域
-                        pythonResult.value += `Result for ${implementation_ID}: ${JSON.stringify(data)}\n`;
+                            // 发送请求到Python后端
+                            const response = await fetch('/api/process', {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json'
+                                },
+                                body: JSON.stringify({
+                                    implementation_ID,
+                                    upload_file_name: uploadedFileName
+                                })
+                            });
 
-                    } catch (error) {
-                        // 记录错误但继续处理一个
-                        console.error('Error processing:', implementation_ID, error);
-                        pythonResult.value += `Error processing ${implementation_ID}: ${error.message}\n`;
+                            const data = await response.json();
+                            
+                            // 显示响应数据
+                            console.log('Received response for', implementation_ID, ':', data);
+                            
+                            // 添加处理结果到显示区域
+                            pythonResult.value += `Result for ${implementation_ID}: ${JSON.stringify(data)}\n`;
+                            
+                        } catch (error) {
+                            // 记录错误但继续处理下一个
+                            console.error('Error processing:', implementation_ID, error);
+                            pythonResult.value += `Error processing ${implementation_ID}: ${error.message}\n`;
+                        }
+
+                        // 可选：添加一个小延迟，确保系统有时间处理
+                        await new Promise(resolve => setTimeout(resolve, 1000));
                     }
 
-                    // 可选：添加一个小延迟，确保系统有时间处理
-                    await new Promise(resolve => setTimeout(resolve, 1000));
-                }
+                    pythonResult.value += "\nAll selected implementations have been processed.";
+                    status.textContent = "All selected implementations have been processed.";
+                    console.log('All processing completed');
 
-                pythonResult.value += "\nAll selected implementations have been processed.";
-                console.log('All processing completed');
+                } catch (error) {
+                    console.error('Error:', error);
+                    pythonResult.value += `\nError: ${error.message}`;
+                    status.textContent = 'Error occurred during processing.';
+                } finally {
+                    // 3秒后隐藏加载动画（保持状态消息可见）
+                    setTimeout(() => {
+                        spinner.style.display = 'none';
+                    }, 3000);
+                }
+            }
+
+            // 辅助函数：隐藏加载元素
+            function hideLoadingElements() {
+                const spinner = document.getElementById('loadingSpinner');
+                const status = document.getElementById('processingStatus');
+                spinner.style.display = 'none';
+                status.style.display = 'none';
             }
 
             // 直接打开执行结果的文件夹
@@ -618,7 +687,7 @@
                             .join('<br>');     // 用换行符连接所有ID
 
                         // 在结果容器中显示实现ID列表，如果不需要显示，则删除，同时删除<div id="result-right" class="result-container">
-                        document.getElementById('result-right').innerHTML = implementations || 'No valid implementations found';
+                        //document.getElementById('result-right').innerHTML = implementations || 'No valid implementations found';
 
                         // 获取复选框容器元
                         const checkboxContainer = document.getElementById('implementation-checkboxes');
@@ -668,116 +737,208 @@
             
             // 生成最终报告
             function generateFinalReport() {
-                // 检查是有选中的实现ID
+                console.log('Starting report generation...');
+
+                // 获取选中的实现ID
                 const selectedImplementations = getSelectedImplementations();
                 if (!selectedImplementations || selectedImplementations.length === 0) {
                     alert('Please select at least one implementation before generating the report');
                     return;
                 }
 
-                // 检查是否已上传文件
-                if (!uploadedFileName) {
-                    alert('Please upload required files before generating the report');
-                    return;
+                // 对每个选中的实现ID验证文件是否存在
+                async function checkFileExists(implementation_id, filetype) {
+                    try {
+                        const response = await fetch(`/Attack_Results/${implementation_id}/${filetype}`, { method: 'HEAD' });
+                        return response.ok;
+                    } catch (error) {
+                        console.error(`File check error for ${implementation_id}.${filetype}:`, error);
+                        return false;
+                    }
                 }
 
-                // 获取评估结果文本
-                const assessmentResult = document.getElementById('pythonResult').value;
+                // 为每个选中的实现ID创建分析结果部分的HTML
+                function createAnalysisSection(implementation_id) {
+                    return `
+                        <div class="report-section">
+                            <h2>Analysis Results of Assessment : ${implementation_id}</h2>
+                            <!-- 显示图片 -->
+                            <h3>Results Digram</h3>
+                            <div id="imageContainer_${implementation_id}">Loading image...</div>
+                            
+                            <!-- 显示 JSON 数据 -->
+                            <h3>Results Summary</h3>
+                            <h3><div id="jsonContent_${implementation_id}" class="json-content">                            
+                            </div></h3>
+                        </div>
+                    `;
+                }
 
-                // 创建打印页面的内容
-                const printWindow = window.open('', '_blank');
-                printWindow.document.write(`
+                // 创建报告内容
+                const finalReportContent = {
+                    title: 'Exploitation Assessment Report',
+                    date: new Date().toLocaleString(),
+                    modelFile: modelFileName || 'No model file uploaded',
+                    trainingData: dataset1FileName || 'No training dataset uploaded',
+                    testData: dataset2FileName || 'No test dataset uploaded',
+                    implementations: selectedImplementations,
+                    assessmentResults: document.getElementById('pythonResult').value
+                };
+
+                // 创建报告模板
+                const template = `
                     <!DOCTYPE html>
                     <html>
                     <head>
-                        <title>Security Assessment Report</title>
+                        <title>${finalReportContent.title}</title>
                         <style>
                             body {
                                 font-family: Arial, sans-serif;
-                                margin: 40px;
+                                padding: 20px;
                                 line-height: 1.6;
                             }
-                            .header {
-                                text-align: center;
-                                margin-bottom: 30px;
-                            }
-                            .section {
-                                margin-bottom: 20px;
-                            }
-                            .section-title {
-                                font-size: 18px;
-                                font-weight: bold;
-                                margin-bottom: 10px;
+                            h1 {
                                 color: #333;
+                                border-bottom: 2px solid #007bff;
+                                padding-bottom: 10px;
                             }
-                            .content {
-                                margin-left: 20px;
+                            .report-section {
+                                margin: 20px 0;
                             }
-                            .timestamp {
-                                color: #666;
-                                font-size: 14px;
+                            .report-item {
+                                margin: 10px 0;
+                            }
+                            .label {
+                                font-weight: bold;
+                                color: #007bff;
                             }
                             pre {
                                 background-color: #f5f5f5;
                                 padding: 10px;
                                 border-radius: 4px;
                                 overflow-x: auto;
+                                white-space: pre-wrap;
+                                word-wrap: break-word;
                             }
-                            @media print {
-                                body {
-                                    margin: 20px;
-                                }
-                                pre {
-                                    white-space: pre-wrap;
-                                    word-wrap: break-word;
-                                }
+                            .result-image {
+                                max-width: 100%;
+                                height: auto;
+                                margin: 20px 0;
+                            }
+                            .json-content {
+                                background-color: #f8f9fa;
+                                border: 1px solid #dee2e6;
+                                border-radius: 4px;
+                                padding: 15px;
+                                margin: 10px 0;
                             }
                         </style>
                     </head>
                     <body>
-                        <div class="header">
-                            <h1>Security Assessment Report</h1>
-                            <p class="timestamp">Generated on: ${new Date().toLocaleString()}</p>
+                        <h1>${finalReportContent.title}</h1>
+                        
+                        <div class="report-section">
+                            <p><span class="label">Generated on:</span> ${finalReportContent.date}</p>
                         </div>
 
-                        <div class="section">
-                            <div class="section-title">Model Information</div>
-                            <div class="content">
-                                <p>Model File: ${uploadedFileName}</p>
-                            </div>
+                        <div class="report-section">
+                            <h2>Uploaded Files</h2>
+                            <p><span class="label">Model File:</span> ${finalReportContent.modelFile}</p>
+                            <p><span class="label">Training Dataset:</span> ${finalReportContent.trainingData}</p>
+                            <p><span class="label">Test Dataset:</span> ${finalReportContent.testData}</p>
                         </div>
 
-                        <div class="section">
-                            <div class="section-title">Selected Implementations</div>
-                            <div class="content">
-                                <ul>
-                                    ${selectedImplementations.map(impl => `<li>${impl}</li>`).join('')}
-                                </ul>
-                            </div>
+                        <div class="report-section">
+                            <h2>Selected Implementations</h2>
+                            <ul>
+                                ${finalReportContent.implementations.map((impl, index) => 
+                                    `<li><span class="label">Implementation ${index + 1}:</span> ${impl}</li>`
+                                ).join('')}
+                            </ul>
                         </div>
 
-                        <div class="section">
-                            <div class="section-title">Assessment Results</div>
-                            <div class="content">
-                                <pre>${assessmentResult}</pre>
-                            </div>
+                        <div class="report-section">
+                            <h2>Assessment Records</h2>
+                            <h3><pre>${finalReportContent.assessmentResults}</pre></h3>
                         </div>
 
-                        <div class="section">
-                            <div class="section-title">Additional Notes</div>
-                            <div class="content">
-                                <p>This report was automatically generated by the Robust ML Test Bed system.</p>
-                            </div>
-                        </div>
+                        <!-- 为每个实现ID创建分析结果部分 -->
+                        ${selectedImplementations.map(createAnalysisSection).join('')}
                     </body>
                     </html>
-                `);
+                `;
 
-                // 等待内容加载完成后打印
+                const printWindow = window.open('', '_blank');
+                printWindow.document.write(template);
+
+                // 为每个选中的实现ID加载图片和JSON数据
+                selectedImplementations.forEach(implementation_id => {
+                    // 加载图片
+                    const img = new Image();
+                    img.onload = function() {
+                        const imageContainer = printWindow.document.getElementById(`imageContainer_${implementation_id}`);
+                        if (imageContainer) {
+                            imageContainer.innerHTML = '';
+                            imageContainer.appendChild(img.cloneNode());
+                        }
+                    };
+                    img.onerror = function() {
+                        const imageContainer = printWindow.document.getElementById(`imageContainer_${implementation_id}`);
+                        if (imageContainer) {
+                            imageContainer.innerHTML = `Error loading image for implementation: ${implementation_id}`;
+                        }
+                    };
+                    // 使用选中的实现ID构建图片URL
+                    img.src = `/Attack_Results/${implementation_id}/png`;
+                    img.className = 'result-image';
+
+                    // 加载JSON数据
+                    fetch(`/Attack_Results/${implementation_id}/json`)
+                        .then(response => {
+                            if (!response.ok) {
+                                throw new Error(`Failed to load data for implementation: ${implementation_id}`);
+                            }
+                            return response.json();
+                        })
+                        .then(data => {
+                            const jsonContent = printWindow.document.getElementById(`jsonContent_${implementation_id}`);
+                            if (jsonContent) {
+                                // 显示摘要信息
+                                const formattedContent = data.messages.map(message => {
+                                    return `<div class="summary-entry">${message}</div>`;
+                                }).join('\n');
+
+                                // 添加样式
+                                jsonContent.innerHTML = `
+                                    <style>
+                                        .summary-entry {
+                                            margin: 10px 0;
+                                            padding: 10px;
+                                            background-color: #f8f9fa;
+                                            border-radius: 4px;
+                                            font-family: monospace;
+                                            white-space: pre-wrap;
+                                        }
+                                    </style>
+                                    ${formattedContent}
+                                `;
+                            }
+                        })
+                        .catch(error => {
+                            console.error(`Error loading JSON file for ${implementation_id}:`, error);
+                            const jsonContent = printWindow.document.getElementById(`jsonContent_${implementation_id}`);
+                            if (jsonContent) {
+                                jsonContent.innerHTML = `Error loading summary for implementation ${implementation_id}: ${error.message}`;
+                            }
+                        });
+                });
+
+                // 等待所有内容加载完成后打印
                 printWindow.document.close();
                 printWindow.onload = function() {
-                    printWindow.print();
-                    // printWindow.close(); // 如果想在打印后自动关闭窗口，取消这行的注释
+                    setTimeout(() => {
+                        printWindow.print();
+                    }, 2000);
                 };
             }
 

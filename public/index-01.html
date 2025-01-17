@@ -43,25 +43,30 @@
 </head>
 <body>
     <!-- Head Section -->
+    <style>
+        /* 添加反白样式 */
+        .active {
+        background-color: #eaeef1; /* 反白背景颜色 */
+        color: rgb(35, 231, 9); /* 反白文字颜色 */
+        border-radius: 8px; /* 圆角效果 */
+        }
+    </style>
     <header>
         <h1><a href="index.html" style="color: inherit; text-decoration: none;">Welcome to Robust ML Test Bed</a></h1>
         <nav>
             <ul>
-                <li><a href="index-01.html">INPUT1</a></li>
-                <li><a href="index-02.html">INPUT2</a></li>
+                <li><a href="index-01.html" class="active">Vulnerability Assessment</a></li>
+                <li><a href="index-02.html">Exploitation Assessment</a></li>
             </ul>
         </nav>
     </header>
 
-
-
-
     <div class="container">
         <!-- client structure -->
         <div class="client-input">
-            <h1>Client Inputs</h1>
+            <h1>Project Client Inputs</h1>
             <div class="input-group">
-                <label for="clientName">Please Enter Client Name:</label>
+                <label for="clientName">Please Enter Project Client Name:</label>
                 <input type="text" 
                        id="clientName" 
                        placeholder="Please enter a valid name"
@@ -75,21 +80,19 @@
             <div class="form-container">
                 <!-- Selection for Attack Type -->
                 <div class="form-group">
-                    <label>Attack Type:</label>
-                    <select id="Attack_Type">
+                    <label>Attack Types:</label>
+                    <select id="Attack_Types">
                         <option value="" style="font-weight:bold;">Select Attack Type</option>
                         <option value="ALL">ALL</option>                        
-                        <option value="Poinsoning Attack">Poinsoning Attack</option>
+                        <option value="Poisoning Attack">Poisoning Attack</option>
                         <option value="Evasion Attack">Evasion Attack</option>
-                        <option value="Privacy Attack">Privacy Attack</option>
-                        <option value="Jailbreak Attack">Jailbreak Attack</option>
                         <option value="Backdoor Attack">Backdoor Attack</option>
-                        <option value="Goal Hijacking">Goal Hijacking</option>
-                        <option value="Indirect Prompt Injections">Indirect Prompt Injections</option>
-                        <option value="Blanks">Blanks</option>
+                        <option value="Privacy Attack">Privacy Attack</option>
+                        <option value="Generative AI Attack">Generative AI Attack</option>
+                        
+                        <option value="Out-of-Distribution">Out-of-Distribution</option>
                     </select>
                 </div>                                
-                
                 
                 <!-- Selection for Data Modality -->
                 <div class="form-group">
@@ -196,30 +199,28 @@
                     </select>
                 </div>
 
-                <button onclick="querySolution()">Search</button>
-                <div id="result">Results will appear here...</div>
+                <button onclick="querySolution()">Vulnerability Assessment</button>
+                <div id="result">Vulnerability Assessment results will appear here...</div>
             
                 <!-- 在现有表单后添加 PDF 按钮 -->
-            <div class="form-group">
-                <button id="generatePDF" class="btn" onclick="generatePDFReport()">
-                    Generate PDF Report
-                </button>
-                <button id="nextStep" class="btn" onclick="querySolutionRightAndRedirect()">
-                    Next Step
-                </button>
-            </div>
-                                
+                <div class="form-group">
+                    <button id="generatePDF" class="btn" onclick="generatePDFReport()">
+                        Generate VA Report
+                    </button>
+                    <button id="nextStep" class="btn" onclick="querySolutionRightAndRedirect()">
+                        Exploitation Assessment
+                    </button>
+                </div>
             </div>
         </div>
     </div>
 
     <script>
-        
         // 全局变量存储用户名
         let globalClientName = '';
         let globalImplementations_1 = [];  // 存储查询结果
 
-
+        // 提交客户姓名的函数
         function submitClientName() {
             const clientNameInput = document.getElementById('clientName');
             const name = clientNameInput.value.trim();
@@ -245,16 +246,13 @@
         document.getElementById('clientName').addEventListener('input', function() {
             this.classList.remove('error');
         });
-        
-        
-        
-        
-        // left panel search function
+              
+        // 左侧面板搜索函数
         function querySolution() {
-            console.log('Query function called'); // Log function call
+            console.log('Query function called');
             
-            // Get all select box values
-            const Attack_Type = document.getElementById('Attack_Type').value;
+            // 获取所有下拉框的值
+            const Attack_Types = document.getElementById('Attack_Types').value;
             const Data_Modality = document.getElementById('Data_Modality').value;
             const Tasks = document.getElementById('Tasks').value;
             const Learning_Architecture = document.getElementById('Learning_Architecture').value;
@@ -262,21 +260,24 @@
             const Knowledge = document.getElementById('Knowledge').value;
             const Application_Domains = document.getElementById('Application_Domains').value;
             
-            // Validate all fields are selected
+            // 验证所有字段是否已选择
             if (!Data_Modality || !Tasks || !Learning_Architecture || !Model_Architecture || !Knowledge || !Application_Domains) {
-                alert('Please select all fields'); // Alert user to fill all fields
+                alert('Please select all fields');
                 return;
             }
-            // Alert user to fill all fields
             document.getElementById('result').innerHTML = 'Sending request...';
-            // Alert user to fill all fields
+            
+            // 使用fetch API向'/api/query-solution'端点发送POST请求
             fetch('/api/query-solution', {
+                // 指定HTTP请求方法为POST
                 method: 'POST',
+                // 设置请求头,声明发送的是JSON格式数据
                 headers: {
-                    'Content-Type': 'application/json' // Set content type to JSON
+                    'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({ // Set content type to JSON
-                    Attack_Type,
+                // 将请求参数对象转换为JSON字符串作为请求体
+                body: JSON.stringify({
+                    Attack_Types,
                     Data_Modality,
                     Tasks,
                     Learning_Architecture,
@@ -285,28 +286,100 @@
                     Application_Domains
                 })
             })
-            .then(response => response.json()) // Convert response to JSON
-            .then(data => { // Handle returned data
-                // Handle returned data
+            .then(response => response.json())// 将响应转换为JSON格式
+            .then(data => {// 处理返回的数据
+                console.log('Raw data:', data); // 添加调试日志
                 globalImplementations_1 = data;
-                // 保存数据到 localStorage
                 localStorage.setItem('globalImplementations_1', JSON.stringify(data));
+                localStorage.setItem('globalClientName', globalClientName);
+
+                // 获取选择的攻击类型
+                const selectedAttackType = document.getElementById('Attack_Types').value;
                 
-                const implementations_1 = data.map(item => item.ID).join('<br>');
-                document.getElementById('result').innerHTML = 
-                    `${implementations_1}`;
+                // 开始构建显示内容
+                let resultHTML = 'The results of vulnerability assessment:<br>';
+                resultHTML += `Selected Attack Type: ${selectedAttackType}<br><br>`;
+
+                if (selectedAttackType === 'ALL') {
+                    // 定义所有攻击类型（除了ALL）
+                    const attackTypes = [
+                        "Poisoning Attack",
+                        "Evasion Attack",
+                        "Backdoor Attack",
+                        "Privacy Attack",
+                        "Generative AI Attack",
+                        "Out-of-Distribution"
+                    ];
+
+                    // 按攻击类型分组显示结果
+                    attackTypes.forEach(attackType => {
+                        // 使用更灵活的匹配方式
+                        const typeResults = data.filter(item => {
+                            const itemType = item.Attack_Types || '';
+                            // 根据ID前缀判断攻击类型
+                            switch(attackType) {
+                                case 'Poisoning Attack':
+                                    return item.ID.startsWith('A_Poisoning_')||
+                                           item.ID.startsWith('A_GAI_Poisoning_001')||
+                                           item.ID.startsWith('A_GAI_Poisoning_002');
+                                case 'Evasion Attack':
+                                    return item.ID.startsWith('A_Evasion_');
+                                case 'Backdoor Attack':
+                                    return item.ID.startsWith('A_Backdoor_')||
+                                           item.ID.startsWith('A_GAI_Poisoning_003');
+                                case 'Privacy Attack':
+                                    return item.ID.startsWith('A_Membership_inference_') || 
+                                           item.ID.startsWith('A_Property_Inference_Attack_') ||
+                                           item.ID.startsWith('A_Reconstruction_');
+                                case 'Generative AI Attack':
+                                    return item.ID.startsWith('A_Jailbreak_') ||
+                                           item.ID.startsWith('A_Indirect_Prompt_injection_') ||
+                                           item.ID.startsWith('A_Goal_Hijacking_');
+                                case 'Out-of-Distribution':
+                                    return item.ID.startsWith('A_OOD_');
+                                default:
+                                    return false;
+                            }
+                        });
+
+                        console.log(`Results for ${attackType}:`, typeResults); // 添加调试日志
+
+                        if (typeResults.length > 0) {
+                            resultHTML += `<strong>${attackType}:</strong><br>`;
+                            typeResults.forEach((item, index) => {
+                                resultHTML += `&nbsp;&nbsp;&nbsp;&nbsp;${index + 1}. ${item.ID}: ${item.Name}<br>`;
+                            });
+                            resultHTML += '<br>';
+                        }
+                    });
+
+                    // 检查是否有任何结果被显示
+                    if (resultHTML === `The results of vulnerability assessment:<br>Selected Attack Type: ALL<br><br>`) {
+                        resultHTML += 'No matching results found for any attack type.';
+                    }
+                } else {
+                    // 直接显示查询结果
+                    const implementations_1 = data.map((item, index) => 
+                        `${index + 1}. ${item.ID}: ${item.Name}<br>`).join(' ');
+                    resultHTML += implementations_1;
+                }
+
+                // 显示结果
+                const resultElement = document.getElementById('result');
+                resultElement.innerHTML = resultHTML;
+                console.log('Final HTML:', resultHTML); // 添加调试日志
             })
-            .catch(error => { // Handle error case
-                // Display error message
+            .catch(error => {// 捕获并处理请求过程中的错误
+                 // 在页面上显示错误信息
                 document.getElementById('result').innerHTML = 
                     `Error: ${error.message}`;
             });
         }
 
-        // 添加相关的 JavaScript
+        // 生成PDF报告的函数
         function generatePDFReport() {
             // 获取所有选择的值
-            const attackType = document.getElementById('Attack_Type').value;
+            const attackType = document.getElementById('Attack_Types').value;
             const dataModality = document.getElementById('Data_Modality').value;
             const tasks = document.getElementById('Tasks').value;
             const learningArchitecture = document.getElementById('Learning_Architecture').value;
@@ -316,8 +389,8 @@
 
             // 创建报告内容
             const reportContent = {
-                title: 'Robust ML Test Bed Report',
-                date: new Date().toLocaleDateString(),
+                title: 'Vulnerability Assessment Report',
+                date: new Date().toLocaleString(),
                 clientName: globalClientName,
                 selections: {
                     '1. Attack type': attackType,
@@ -327,13 +400,10 @@
                     '5. Model Architecture': modelArchitecture,
                     '6. Knowledge': knowledge,
                     '7. Application Domains': applicationDomains
-                },
-                queryResults: globalImplementations_1
-
+                }
             };
 
-            // 使用 window.print() 或第三方库生成 PDF
-            // 这里使用简单的 window.print() 演示
+            // 使用 window.print() 生成 PDF
             const printWindow = window.open('', '_blank');
             printWindow.document.write(`
                 <html>
@@ -360,35 +430,37 @@
                             font-weight: bold;
                             color: #007bff;
                         }
+                        .attack-type {
+                            margin-top: 15px;
+                            font-weight: bold;
+                        }
+                        .attack-item {
+                            margin-left: 20px;
+                            margin-bottom: 5px;
+                        }
                     </style>
                 </head>
                 <body>
                     <h1>${reportContent.title}</h1>
                     <div class="report-section">
-                        <p>Client Name: ${reportContent.clientName}</p>
-                        <p>Generated on: ${reportContent.date}</p>
+                        <p><span class="label">Client Name:</span> ${reportContent.clientName}</p>
+                        <p><span class="label">Generated on:</span> ${reportContent.date}</p>
                     </div>
-                    
+
                     <div class="report-section">
-                    <p>Model Profiles:</p>
+                        <p class="label">Model Profiles:</p>
                         ${Object.entries(reportContent.selections)
                             .map(([key, value]) => `
                                 <div class="report-item">
-                                    <span class="label">${key}:</span> ${value || 'Not selected'}
+                                    <span>${key}:</span> ${value || 'Not selected'}
                                 </div>
                             `).join('')}
                     </div>
                     
                     <div class="report-section">
-                        <p>Attack ID:</p>
-                        ${reportContent.queryResults.map((item, index) => `
-                                <div class="report-item">
-                                    <span class="label">${index + 1}.</span> 
-                                    <span class="label">Attack ID:</span> ${item.ID}
-                                </div>
-                            `).join('')}
+                        <p class="label">Assessment Results:</p>
+                        ${document.getElementById('result').innerHTML}
                     </div>
-                                        
                 </body>
                 </html>
             `);
@@ -447,8 +519,6 @@
             }
         }
     </script>
-
-    
 
     <!-- Foot Section -->
     <footer>

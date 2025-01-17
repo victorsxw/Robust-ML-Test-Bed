@@ -80,3 +80,41 @@ Focus on providing repo-level context and guidelines, not just general coding pr
 .cursorrules can include information about project structure, architectural decisions, and commonly used libraries or methods
 Consider including rules for handling specific file types or coding patterns unique to your project
 Rules can cover both code generation and code understanding aspects for Cursor AI
+
+# Web Frontend Design Rules
+
+1. **Structure Standards**
+- HTML for structure
+- CSS for styling 
+- JavaScript for behavior
+- Strict separation of concerns
+
+2. **File Organization**
+- Modular code organization
+- Core logic in main.js
+- Centralized resources (images/css/js)
+- Consistent naming conventions
+
+3. **Performance**
+- Minimize HTTP requests
+- Compress static assets
+- Async loading for non-critical resources
+- Optimize caching
+
+4. **Code Quality**
+- Follow ESLint rules
+- Document code
+- Avoid inline styles/scripts
+- Maintain readability
+
+5. **Compatibility**
+- Responsive design
+- Cross-browser support
+- Device adaptation
+
+6. **Version Control**
+- Git management
+- Branch strategy
+- Clear commit messages
+
+These ensure maintainable, high-quality code.
