@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Welcome to Robust ML Test Bed</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        /* 保持与现有按钮样式一致 */
+        #generatePDF, #nextStep {
+            margin-top: 20px;
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s ease;
+            margin-right: 10px; /* 添加按钮之间的间距 */
+        }
+    
+        #generatePDF:hover, #nextStep:hover {
+            background-color: #0056b3;
+        }
+    
+        .input-field {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+    
+        .input-field.error {
+            border-color: #ff4444;
+        }
+    
+        .input-field.error::placeholder {
+            color: #ff4444;
+        }
+        </style>
+</head>
+<body>
+    <!-- Head Section -->
+    <style>
+        /* 添加反白样式 */
+        .active {
+        background-color: #eaeef1; /* 反白背景颜色 */
+        color: rgb(35, 231, 9); /* 反白文字颜色 */
+        border-radius: 8px; /* 圆角效果 */
+        }
+    </style>
+    <header>
+        <h1><a href="index.html" style="color: inherit; text-decoration: none;">Welcome to Robust ML Test Bed</a></h1>
+        <nav>
+            <ul>
+                <li><a href="index-01.html" class="active">Vulnerability Assessment</a></li>
+                <li><a href="index-02.html">Exploitation Assessment</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <div class="container">
+        <!-- client structure -->
+        <div class="client-input">
+            <h1>Project Client Inputs</h1>
+            <div class="input-group">
+                <label for="clientName">Please Enter Project Client Name:</label>
+                <input type="text" 
+                       id="clientName" 
+                       placeholder="Please enter a valid name"
+                       class="input-field">
+            </div>
+            <button class="submit-btn" onclick="submitClientName()">Confirm</button>
+        </div>
+        <!-- model profiles structure -->
+        <div class="left-panel">
+            <h1>Model Profiles</h1>
+            <div class="form-container">
+                <!-- Selection for Attack Type -->
+                <div class="form-group">
+                    <label>Attack Types:</label>
+                    <select id="Attack_Types">
+                        <option value="" style="font-weight:bold;">Select Attack Type</option>
+                        <option value="ALL">ALL</option>                        
+                        <option value="Poisoning Attack">Poisoning Attack</option>
+                        <option value="Evasion Attack">Evasion Attack</option>
+                        <option value="Backdoor Attack">Backdoor Attack</option>
+                        <option value="Privacy Attack">Privacy Attack</option>
+                        <option value="Generative AI Attack">Generative AI Attack</option>
+                        
+                        <option value="Out-of-Distribution">Out-of-Distribution</option>
+                    </select>
+                </div>                                
+                
+                <!-- Selection for Data Modality -->
+                <div class="form-group">
+                    <label>Data Modality:</label>
+                    <select id="Data_Modality">
+                        <option value="" style="font-weight:bold;">Select Data Modality</option>
+                        <option value="ALL">ALL</option>
+                        <option value="Text">Text</option>
+                        <option value="Numeric">Numeric</option>
+                        <option value="Image">Image</option>
+                        <option value="Audio">Audio</option>
+                        <option value="Video">Video</option>
+                        <option value="Sensor Data">Sensor Data</option>
+                        <option value="Geospatial Data">Geospatial Data</option>
+                        <option value="Time-Series Data">Time-Series Data</option>
+                        <option value="Tabular">Tabular</option>
+                        <option value="Multimodal">Multimodal</option>
+                        <option value="Text and Image">Text and Image</option>
+                        <option value="Tabular and Image">Tabular and Image</option>
+                        <option value="Blanks">Blanks</option>
+                    </select>
+                </div>
+
+                <!-- Selection for Task Type -->
+                <div class="form-group">
+                    <label>Tasks:</label>
+                    <select id="Tasks">
+                        <option value="" style="font-weight:bold;">Select Tasks</option>
+                        <option value="ALL">ALL</option>
+                        <option value="Regression">Regression</option>
+                        <option value="Classification">Classification</option>
+                        <option value="Clustering">Clustering</option>
+                        <option value="Decision Making">Decision Making</option>
+                        <option value="Dimensionality Reduction">Dimensionality Reduction</option>
+                        <option value="Multi-Label Classification">Multi-Label Classification</option>
+                        <option value="Generative task">Generative task</option>
+                    </select>
+                </div>
+
+                <!-- Selection for Learning Architecture -->
+                <div class="form-group">
+                    <label>Learning Architecture:</label>
+                    <select id="Learning_Architecture">
+                        <option value="" style="font-weight:bold;">Select Learning Architecture</option>
+                        <option value="ALL">ALL</option>                        
+                        <option value="Centralized Learning">Centralized Learning</option>
+                        <option value="Distributed Learning">Distributed Learning</option>
+                        <option value="Split Learning">Split Learning</option>
+                        <option value="Centralized and Distributed Learning">Centralized and Distributed Learning</option>
+                        <option value="Blanks">Blanks</option>
+                    </select>
+                </div>
+
+                <!-- Selection for Model Architecture -->
+                <div class="form-group">
+                    <label>Model Architecture:</label>
+                    <select id="Model_Architecture">
+                        <option value="" style="font-weight:bold;">Select Model Architecture</option>
+                        <option value="ALL">ALL</option>                        
+                        <option value="Recurrent Neural Networks">Recurrent Neural Networks</option>
+                        <option value="Convolutional Neural Networks">Convolutional Neural Networks</option>
+                        <option value="Feedforward Neural Networks">Feedforward Neural Networks</option>
+                        <option value="Generative Adversarial Networks">Generative Adversarial Networks</option>
+                        <option value="Reinforcement Learning">Reinforcement Learning</option>
+                        <option value="Transformer Networks">Transformer Networks</option>
+                        <option value="Neural Network">Neural Network</option>
+                        <option value="Blanks">Blanks</option>
+                    </select>
+                </div>
+
+                <!-- Selection for Attacker's Knowledge -->
+                <div class="form-group">
+                    <label>Knowledge:</label>
+                    <select id="Knowledge">
+                        <option value="" style="font-weight:bold;">Select Knowledge</option>
+                        <option value="ALL">ALL</option>                        
+                        <option value="Full Knowledge">Full Knowledge</option>
+                        <option value="Limited Knowledge">Limited Knowledge</option>
+                        <option value="Zero-Knowledge">Zero-Knowledge</option>
+                        <option value="Limited and Zero-knowledge both considered">Limited and Zero-knowledge both considered</option>
+                        <option value="Full/Limited Knowledge">Full/Limited Knowledge</option>
+                    </select>
+                </div>
+
+                <!-- Selection for Application Domains -->
+                <div class="form-group">
+                    <label>Application Domains:</label>
+                    <select id="Application_Domains">
+                        <option value="" style="font-weight:bold;">Select Application Domains</option>
+                        <option value="ALL">ALL</option>
+                        <option value="Image/Object Recognition">Image/Object Recognition</option>
+                        <option value="Natural Language Processing">Natural Language Processing</option>
+                        <option value="Recommendation Systems">Recommendation Systems</option>
+                        <option value="Fraud Detection">Fraud Detection</option>
+                        <option value="Medical Diagnosis">Medical Diagnosis</option>
+                        <option value="Autonomous Driving">Autonomous Driving</option>
+                        <option value="Financial Market Prediction">Financial Market Prediction</option>
+                        <option value="Speech Recognition">Speech Recognition</option>
+                        <option value="Customer Segmentation">Customer Segmentation</option>
+                        <option value="Gaming">Gaming</option>
+                        <option value="Anomaly Detection">Anomaly Detection</option>
+                        <option value="Image search engine">Image search engine</option>
+                        <option value="Blanks">Blanks</option>
+                    </select>
+                </div>
+
+                <button onclick="querySolution()">Vulnerability Assessment</button>
+                <div id="result">Vulnerability Assessment results will appear here...</div>
+            
+                <!-- 在现有表单后添加 PDF 按钮 -->
+                <div class="form-group">
+                    <button id="generatePDF" class="btn" onclick="generatePDFReport()">
+                        Generate VA Report
+                    </button>
+                    <button id="nextStep" class="btn" onclick="querySolutionRightAndRedirect()">
+                        Exploitation Assessment
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 全局变量存储用户名
+        let globalClientName = '';
+        let globalImplementations_1 = [];  // 存储查询结果
+
+        // 提交客户姓名的函数
+        function submitClientName() {
+            const clientNameInput = document.getElementById('clientName');
+            const name = clientNameInput.value.trim();
+            
+            // 验证输入
+            if (name === '') {
+                clientNameInput.placeholder = 'Please enter a valid name';  // 在输入框中显示提示
+                clientNameInput.classList.add('error');  // 可以添加错误样式
+                return;
+            }
+            
+            // 存储用户名
+            globalClientName = name;
+            
+            // 清除错误状态
+            clientNameInput.classList.remove('error');
+            
+            // 成功提示
+            alert(`Welcome, ${globalClientName}!`);
+        }
+
+        // 输入时重置 placeholder
+        document.getElementById('clientName').addEventListener('input', function() {
+            this.classList.remove('error');
+        });
+              
+        // 左侧面板搜索函数
+        function querySolution() {
+            console.log('Query function called');
+            
+            // 获取所有下拉框的值
+            const Attack_Types = document.getElementById('Attack_Types').value;
+            const Data_Modality = document.getElementById('Data_Modality').value;
+            const Tasks = document.getElementById('Tasks').value;
+            const Learning_Architecture = document.getElementById('Learning_Architecture').value;
+            const Model_Architecture = document.getElementById('Model_Architecture').value;
+            const Knowledge = document.getElementById('Knowledge').value;
+            const Application_Domains = document.getElementById('Application_Domains').value;
+            
+            // 验证所有字段是否已选择
+            if (!Data_Modality || !Tasks || !Learning_Architecture || !Model_Architecture || !Knowledge || !Application_Domains) {
+                alert('Please select all fields');
+                return;
+            }
+            document.getElementById('result').innerHTML = 'Sending request...';
+            
+            // 使用fetch API向'/api/query-solution'端点发送POST请求
+            fetch('/api/query-solution', {
+                // 指定HTTP请求方法为POST
+                method: 'POST',
+                // 设置请求头,声明发送的是JSON格式数据
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                // 将请求参数对象转换为JSON字符串作为请求体
+                body: JSON.stringify({
+                    Attack_Types,
+                    Data_Modality,
+                    Tasks,
+                    Learning_Architecture,
+                    Model_Architecture,
+                    Knowledge,
+                    Application_Domains
+                })
+            })
+            .then(response => response.json())// 将响应转换为JSON格式
+            .then(data => {// 处理返回的数据
+                console.log('Raw data:', data); // 添加调试日志
+                globalImplementations_1 = data;
+                localStorage.setItem('globalImplementations_1', JSON.stringify(data));
+                localStorage.setItem('globalClientName', globalClientName);
+
+                // 获取选择的攻击类型
+                const selectedAttackType = document.getElementById('Attack_Types').value;
+                
+                // 开始构建显示内容
+                let resultHTML = 'The results of vulnerability assessment:<br>';
+                resultHTML += `Selected Attack Type: ${selectedAttackType}<br><br>`;
+
+                if (selectedAttackType === 'ALL') {
+                    // 定义所有攻击类型（除了ALL）
+                    const attackTypes = [
+                        "Poisoning Attack",
+                        "Evasion Attack",
+                        "Backdoor Attack",
+                        "Privacy Attack",
+                        "Generative AI Attack",
+                        "Out-of-Distribution"
+                    ];
+
+                    // 按攻击类型分组显示结果
+                    attackTypes.forEach(attackType => {
+                        // 使用更灵活的匹配方式
+                        const typeResults = data.filter(item => {
+                            const itemType = item.Attack_Types || '';
+                            // 根据ID前缀判断攻击类型
+                            switch(attackType) {
+                                case 'Poisoning Attack':
+                                    return item.ID.startsWith('A_Poisoning_')||
+                                           item.ID.startsWith('A_GAI_Poisoning_001')||
+                                           item.ID.startsWith('A_GAI_Poisoning_002');
+                                case 'Evasion Attack':
+                                    return item.ID.startsWith('A_Evasion_');
+                                case 'Backdoor Attack':
+                                    return item.ID.startsWith('A_Backdoor_')||
+                                           item.ID.startsWith('A_GAI_Poisoning_003');
+                                case 'Privacy Attack':
+                                    return item.ID.startsWith('A_Membership_inference_') || 
+                                           item.ID.startsWith('A_Property_Inference_Attack_') ||
+                                           item.ID.startsWith('A_Reconstruction_');
+                                case 'Generative AI Attack':
+                                    return item.ID.startsWith('A_Jailbreak_') ||
+                                           item.ID.startsWith('A_Indirect_Prompt_injection_') ||
+                                           item.ID.startsWith('A_Goal_Hijacking_');
+                                case 'Out-of-Distribution':
+                                    return item.ID.startsWith('A_OOD_');
+                                default:
+                                    return false;
+                            }
+                        });
+
+                        console.log(`Results for ${attackType}:`, typeResults); // 添加调试日志
+
+                        if (typeResults.length > 0) {
+                            resultHTML += `<strong>${attackType}:</strong><br>`;
+                            typeResults.forEach((item, index) => {
+                                resultHTML += `&nbsp;&nbsp;&nbsp;&nbsp;${index + 1}. ${item.ID}: ${item.Name}<br>`;
+                            });
+                            resultHTML += '<br>';
+                        }
+                    });
+
+                    // 检查是否有任何结果被显示
+                    if (resultHTML === `The results of vulnerability assessment:<br>Selected Attack Type: ALL<br><br>`) {
+                        resultHTML += 'No matching results found for any attack type.';
+                    }
+                } else {
+                    // 直接显示查询结果
+                    const implementations_1 = data.map((item, index) => 
+                        `${index + 1}. ${item.ID}: ${item.Name}<br>`).join(' ');
+                    resultHTML += implementations_1;
+                }
+
+                // 显示结果
+                const resultElement = document.getElementById('result');
+                resultElement.innerHTML = resultHTML;
+                console.log('Final HTML:', resultHTML); // 添加调试日志
+            })
+            .catch(error => {// 捕获并处理请求过程中的错误
+                 // 在页面上显示错误信息
+                document.getElementById('result').innerHTML = 
+                    `Error: ${error.message}`;
+            });
+        }
+
+        // 生成PDF报告的函数
+        function generatePDFReport() {
+            // 获取所有选择的值
+            const attackType = document.getElementById('Attack_Types').value;
+            const dataModality = document.getElementById('Data_Modality').value;
+            const tasks = document.getElementById('Tasks').value;
+            const learningArchitecture = document.getElementById('Learning_Architecture').value;
+            const modelArchitecture = document.getElementById('Model_Architecture').value;
+            const knowledge = document.getElementById('Knowledge').value;
+            const applicationDomains = document.getElementById('Application_Domains').value;
+
+            // 创建报告内容
+            const reportContent = {
+                title: 'Vulnerability Assessment Report',
+                date: new Date().toLocaleString(),
+                clientName: globalClientName,
+                selections: {
+                    '1. Attack type': attackType,
+                    '2. Data Modality': dataModality,
+                    '3. Tasks': tasks,
+                    '4. Learning Architecture': learningArchitecture,
+                    '5. Model Architecture': modelArchitecture,
+                    '6. Knowledge': knowledge,
+                    '7. Application Domains': applicationDomains
+                }
+            };
+
+            // 使用 window.print() 生成 PDF
+            const printWindow = window.open('', '_blank');
+            printWindow.document.write(`
+                <html>
+                <head>
+                    <title>${reportContent.title}</title>
+                    <style>
+                        body {
+                            font-family: Arial, sans-serif;
+                            padding: 20px;
+                            line-height: 1.6;
+                        }
+                        h1 {
+                            color: #333;
+                            border-bottom: 2px solid #007bff;
+                            padding-bottom: 10px;
+                        }
+                        .report-section {
+                            margin: 20px 0;
+                        }
+                        .report-item {
+                            margin: 10px 0;
+                        }
+                        .label {
+                            font-weight: bold;
+                            color: #007bff;
+                        }
+                        .attack-type {
+                            margin-top: 15px;
+                            font-weight: bold;
+                        }
+                        .attack-item {
+                            margin-left: 20px;
+                            margin-bottom: 5px;
+                        }
+                    </style>
+                </head>
+                <body>
+                    <h1>${reportContent.title}</h1>
+                    <div class="report-section">
+                        <p><span class="label">Client Name:</span> ${reportContent.clientName}</p>
+                        <p><span class="label">Generated on:</span> ${reportContent.date}</p>
+                    </div>
+
+                    <div class="report-section">
+                        <p class="label">Model Profiles:</p>
+                        ${Object.entries(reportContent.selections)
+                            .map(([key, value]) => `
+                                <div class="report-item">
+                                    <span>${key}:</span> ${value || 'Not selected'}
+                                </div>
+                            `).join('')}
+                    </div>
+                    
+                    <div class="report-section">
+                        <p class="label">Assessment Results:</p>
+                        ${document.getElementById('result').innerHTML}
+                    </div>
+                </body>
+                </html>
+            `);
+            printWindow.document.close();
+            printWindow.print();
+        }
+
+        // 添加新的函数，结合搜索和跳转功能
+        async function querySolutionRightAndRedirect() {
+            // 从 localStorage 读取并解析JSON数据
+            const storedData = localStorage.getItem('globalImplementations_1');
+            let Attack_IDs = [];
+            
+            try {
+                const parsedData = JSON.parse(storedData);
+                // 获取所有的ID
+                Attack_IDs = parsedData.map(item => item.ID);
+                
+                if (!Attack_IDs.length) {
+                    alert('No Attack IDs found. Please select an attack first.');
+                    return;
+                }
+            } catch (error) {
+                console.error('Error parsing stored data:', error);
+                alert('Error parsing stored data. Please try again.');
+                return;
+            }
+            
+            try {
+                // 为所有Attack ID发送请求
+                const promises = Attack_IDs.map(Attack_ID => 
+                    fetch('/api/query-solution-right', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ Attack_ID })
+                    }).then(response => response.json())
+                );
+                
+                // 等待所有请求完成
+                const results = await Promise.all(promises);
+                
+                // 合并所有结果
+                const combinedResults = results.flat();
+                
+                // 将结果存储在 localStorage 中
+                localStorage.setItem('searchResults', JSON.stringify(combinedResults));
+                
+                // 跳转到 index-02.html
+                window.location.href = 'index-02.html';
+                
+            } catch (error) {
+                console.error('Error details:', error);
+                alert('Error occurred during search. Please check console for details.');
+            }
+        }
+    </script>
+
+    <!-- Foot Section -->
+    <footer>
+        <p>&copy; 2024 Robust ML Test Bed. All rights reserved.</p>
+        <p><a href="#privacy">Privacy Policy</a> | <a href="#terms">Terms of Service</a></p>
+    </footer>
+</body>
+</html> 

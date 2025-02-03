@@ -1,0 +1,122 @@
+body {
+    font-family: Arial, sans-serif;    /*基础字体*/
+    margin: 20px;                      /*边距*/
+    font-size: 18px;                   /*字号*/
+    line-height: 1.6;                  /*行高*/
+    color: #333;                       /*字色*/
+    background-color: #f9f9f9;         /*背景*/
+ }
+ 
+ header {
+    background-color: #4CAF50;         /*绿色背景*/
+    color: white;                      /*白字*/
+    padding: 10px 0;                   /*上下边距*/
+    text-align: center;                /*居中*/
+ }
+ 
+ nav ul {
+    list-style-type: none;             /*无列表样式*/
+    padding: 0;                        /*无内边距*/
+ }
+ 
+ nav ul li {
+    display: inline;                   /*内联*/
+    margin-right: 20px;               /*右边距*/
+ }
+ 
+ nav ul li a {
+    color: white;                      /*白链接*/
+    text-decoration: none;             /*无下划线*/
+    font-weight: bold;                 /*加粗*/
+ }
+ 
+ .container {
+    max-width: 800px;                  /*最大宽*/
+    margin: 0 auto;                    /*居中*/
+    padding: 20px;                     /*内边距*/
+    background-color: white;           /*白底*/
+    box-shadow: 0 0 10px rgba(0,0,0,0.1); /*阴影*/
+ }
+ 
+ .form-container {margin-top: 20px}     /*顶间距*/
+ .form-group {margin-bottom: 15px}      /*底间距*/
+ 
+ label {
+    display: inline-block;             /*行内块*/
+    width: 300px;                      /*宽度*/
+    font-weight: bold;                 /*加粗*/
+ }
+ 
+ select, input[type="file"], textarea {
+    width: calc(100% - 160px);         /*自适应宽*/
+    padding: 8px;                      /*内边距*/
+    font-size: 16px;                   /*字号*/
+ }
+ 
+ button {
+    padding: 10px 20px;                /*按钮边距*/
+    background-color: #4CAF50;         /*绿底*/
+    color: white;                      /*白字*/
+    border: none;                      /*无边框*/
+    cursor: pointer;                   /*手型*/
+    font-size: 16px;                   /*字号*/
+ }
+ 
+ button:hover {background-color: #45a049} /*悬停色*/
+ 
+ #result, #result-right, #pythonResult {
+    margin-top: 20px;                  /*顶间距*/
+    padding: 10px;                     /*内边距*/
+    border: 1px solid #ccc;            /*边框*/
+    min-height: 50px;                  /*最小高*/
+    white-space: pre-wrap;             /*保留空格*/
+    overflow-x: auto;                  /*横滚动*/
+    font-size: 16px;                   /*字号*/
+ }
+ 
+ footer {
+    text-align: center;                /*居中*/
+    margin-top: 20px;                  /*顶间距*/
+    padding: 10px 0;                   /*边距*/
+    background-color: #4c66af;         /*绿底*/
+    color: white;                      /*白字*/
+ }
+ 
+ .hero-button {background-color: #007bff} /*蓝按钮*/
+ .logo {height: 60px}                     /*Logo高*/
+ 
+ .hero-section {
+    background-image: url('../images/bg/background.jpeg'); /*背景图*/
+    background-size: cover;            /*填充*/
+    background-position: center;        /*居中*/
+ }
+ 
+ .upload-section {
+    margin: 20px 0;                    /*上下距*/
+    padding: 15px;                     /*内边距*/
+    border: 1px solid #ddd;            /*边框*/
+    border-radius: 5px;                /*圆角*/
+ }
+ 
+ .upload-section label {
+    display: block;                    /*块级*/
+    margin-bottom: 8px;                /*底间距*/
+    font-weight: bold;                 /*加粗*/
+ }
+ 
+ .upload-section input[type="file"] {
+    margin-bottom: 10px               /*底间距*/
+ }
+ 
+ .upload-section button {
+    padding: 8px 15px;                 /*内边距*/
+    background-color: #4CAF50;         /*绿底*/
+    color: white;                      /*白字*/
+    border: none;                      /*无边框*/
+    border-radius: 4px;                /*圆角*/
+    cursor: pointer;                   /*手型*/
+ }
+ 
+ .upload-section button:hover {
+    background-color: #45a049;         /*悬停色*/
+ }
