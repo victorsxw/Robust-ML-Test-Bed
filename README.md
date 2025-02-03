@@ -58,4 +58,6 @@ waiting for improving items:
 2025-01-29
 完成model，training dataset， test dataset文件上传至各自文件夹，命名为model/train_dataset/train_dataset-time stamps-原名字。
 
-
+2025-2-2
+1上传GitHub更新 master分支为 testbed 2.0. 
+2 修改命名规则：用户名_类型model/trainingdataset/testdataset_时间戳_原文件名。注意：用户名不能有空格，否则无法传递给python。

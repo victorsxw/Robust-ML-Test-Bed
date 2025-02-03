@@ -330,11 +330,6 @@
             <textarea id="pythonResult" rows="10" cols="100" readonly></textarea>
         </div>
 
-        <!-- 安全评估结果文件夹打开 -->
-        <div class="form-group">
-            <button onclick="openAnalysisResults()">Open Results Files</button>
-        </div>
-       
         <div class="form-group">
             <button id="generatePDF" class="btn" onclick="generateFinalReport()">
                 Generate EA Report
@@ -464,6 +459,9 @@
             function uploadFileToServer(file, fileType) {
                 console.log('Starting upload for:', fileType, 'File:', file.name);
                 
+                // 从 localStorage 获取用户名
+                const clientName = localStorage.getItem('globalClientName') || 'unknown_user';
+                
                 const formData = new FormData();
                 formData.append('file', file);
                 formData.append('type', fileType);
@@ -471,7 +469,8 @@
                 fetch('/api/upload', {
                     method: 'POST',
                     headers: {
-                        'X-File-Type': fileType
+                        'X-File-Type': fileType,
+                        'X-Client-Name': clientName // 添加用户名到请求头
                     },
                     body: formData
                 })
@@ -539,7 +538,13 @@
                     return;
                 }
                 
-                // 上传文件
+                // 检查是否有用户名
+                const clientName = localStorage.getItem('globalClientName');
+                if (!clientName) {
+                    alert('Please enter your name in the previous page first');
+                    return;
+                }
+                
                 uploadFileToServer(file, 'model');
             }
 
@@ -695,26 +700,6 @@
                 status.style.display = 'none';
             }
 
-            // 直接打开执行结果的文件夹
-            function openAnalysisResults() {
-                fetch('/api/open-results-folder', {
-                    method: 'POST'
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if(data.success) {
-                        window.location.href = 'file:///D:/Lee/robust-ai/Attack_Results';                             
-                        //alert('Results folder opened successfully');
-                    } else {
-                        console.error('Failed to open results folder:', data.message);//alert('Failed to open results folder');
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    alert('Error opening results folder');
-                });
-            }
-
             // 页面加载时显示结果和生成复选框
             window.onload = function() {
                 // 从localStorage中获取之前存储的搜索结果
@@ -753,9 +738,6 @@
                             })
                             .filter(id => id)  // 过滤掉无效的ID
                             .join('<br>');     // 用换行符连接所有ID
-
-                        // 在结果容器中显示实现ID列表，如果不需要显示，则删除，同时删除<div id="result-right" class="result-container">
-                        //document.getElementById('result-right').innerHTML = implementations || 'No valid implementations found';
 
                         // 获取复选框容器元
                         const checkboxContainer = document.getElementById('implementation-checkboxes');

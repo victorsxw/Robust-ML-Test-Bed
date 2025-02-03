@@ -19,6 +19,8 @@
   },
   "scripts": {
     "start": "node server.js",
+    "dev": "node server.js",
+    "docker": "IS_DOCKER=true node server.js",
     "build": "pkg . --targets node16-win-x64",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -49,5 +51,8 @@
     "multer": "^1.4.5-lts.1",
     "mysql2": "^3.11.4",
     "node-fetch": "^2.7.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.2"
   }
 }

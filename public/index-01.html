@@ -470,47 +470,68 @@
 
         // 添加新的函数，结合搜索和跳转功能
         async function querySolutionRightAndRedirect() {
-            // 从 localStorage 读取并解析JSON数据
-            const storedData = localStorage.getItem('globalImplementations_1');
-            let Attack_IDs = [];
-            
             try {
+                // 从 localStorage 读取并解析JSON数据
+                const storedData = localStorage.getItem('globalImplementations_1');
+                if (!storedData) {
+                    alert('No attack data found. Please select an attack first.');
+                    return;
+                }
+
                 const parsedData = JSON.parse(storedData);
+                console.log('Parsed data:', parsedData); // 添加调试日志
+
                 // 获取所有的ID
-                Attack_IDs = parsedData.map(item => item.ID);
+                const Attack_IDs = parsedData.map(item => item.ID);
+                console.log('Attack IDs:', Attack_IDs); // 添加调试日志
                 
                 if (!Attack_IDs.length) {
                     alert('No Attack IDs found. Please select an attack first.');
                     return;
                 }
-            } catch (error) {
-                console.error('Error parsing stored data:', error);
-                alert('Error parsing stored data. Please try again.');
-                return;
-            }
-            
-            try {
+
                 // 为所有Attack ID发送请求
-                const promises = Attack_IDs.map(Attack_ID => 
-                    fetch('/api/query-solution-right', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json'
-                        },
-                        body: JSON.stringify({ Attack_ID })
-                    }).then(response => response.json())
-                );
-                
-                // 等待所有请求完成
-                const results = await Promise.all(promises);
-                
-                // 合并所有结果
-                const combinedResults = results.flat();
+                const results = [];
+                for (const Attack_ID of Attack_IDs) {
+                    try {
+                        console.log('Sending request for Attack_ID:', Attack_ID); // 添加调试日志
+                        const response = await fetch('/api/query-solution-right', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify({ Attack_ID })
+                        });
+
+                        if (!response.ok) {
+                            throw new Error(`HTTP error! status: ${response.status}`);
+                        }
+
+                        const data = await response.json();
+                        console.log('Response data for', Attack_ID, ':', data); // 添加调试日志
+                        results.push(...(Array.isArray(data) ? data : [data]));
+                    } catch (error) {
+                        console.error('Error processing Attack_ID:', Attack_ID, error);
+                        // 继续处理其他ID，而不是完全停止
+                    }
+                }
+
+                // 确保我们有结果
+                if (results.length === 0) {
+                    alert('No implementation IDs found for the selected attacks.');
+                    return;
+                }
+
+                console.log('Final results:', results); // 添加调试日志
                 
                 // 将结果存储在 localStorage 中
-                localStorage.setItem('searchResults', JSON.stringify(combinedResults));
+                localStorage.setItem('searchResults', JSON.stringify(results));
+                
+                // 确保在跳转前数据已经保存
+                await new Promise(resolve => setTimeout(resolve, 100));
                 
                 // 跳转到 index-02.html
+                console.log('Redirecting to index-02.html...'); // 添加调试日志
                 window.location.href = 'index-02.html';
                 
             } catch (error) {
@@ -518,6 +539,15 @@
                 alert('Error occurred during search. Please check console for details.');
             }
         }
+
+        // 在页面加载时添加调试代码
+        window.addEventListener('load', () => {
+            console.log('Page loaded');
+            console.log('Current localStorage content:', {
+                globalImplementations_1: localStorage.getItem('globalImplementations_1'),
+                searchResults: localStorage.getItem('searchResults')
+            });
+        });
     </script>
 
     <!-- Foot Section -->

@@ -2,40 +2,77 @@ version: '3.8'
 
 services:
   web:
-    build: .
+    build: 
+      context: .
+      dockerfile: Dockerfile.web
     ports:
       - "3000:3000"
+    volumes:
+      - ./:/app
+      - ${LOCAL_PATH}/attack_results:/app/attack_results
+      - ${LOCAL_PATH}/attack_scripts:/app/attack_scripts
+      - ${LOCAL_PATH}/test_dataset:/app/test_dataset
+      - ${LOCAL_PATH}/train_dataset:/app/train_dataset
+      - ${LOCAL_PATH}/user_models:/app/user_models
     environment:
+      - NODE_ENV=production
+      - IS_DOCKER=true
       - DB_HOST=mysql
       - DB_USER=root
       - DB_PASSWORD=yorku2024
-      - DB_NAME=Attack
+      - DB_NAME=attack
     depends_on:
-      - mysql
+      mysql:
+        condition: service_healthy
+      flask:
+        condition: service_started
     networks:
       - app-network
-    restart: always
+
+  flask:
+    build:
+      context: ./flask-backend
+      dockerfile: Dockerfile.python
+    ports:
+      - "5000:5000"
+    volumes:
+      - ./flask-backend/flask-backend:/app
+      - ${LOCAL_PATH}/attack_results:/app/attack_results
+      - ${LOCAL_PATH}/attack_scripts:/app/attack_scripts
+      - ${LOCAL_PATH}/test_dataset:/app/test_dataset
+      - ${LOCAL_PATH}/train_dataset:/app/train_dataset
+      - ${LOCAL_PATH}/user_models:/app/user_models
+    environment:
+      - IS_DOCKER=true
+    networks:
+      - app-network
 
   mysql:
     image: mysql:8.0
     environment:
-      - MYSQL_ROOT_PASSWORD=yorku2024
-      - MYSQL_DATABASE=Attack
-      - MYSQL_USER=root
-      - MYSQL_PASSWORD=yorku2024
+      MYSQL_ROOT_PASSWORD: yorku2024
+      MYSQL_DATABASE: attack
     ports:
       - "3306:3306"
     volumes:
       - mysql-data:/var/lib/mysql
-      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
-    command: --default-authentication-plugin=mysql_native_password
+      - ./init_dump.sql:/docker-entrypoint-initdb.d/init_dump.sql
+    command: >
+      --default-authentication-plugin=mysql_native_password
+      --character-set-server=utf8mb4
+      --collation-server=utf8mb4_unicode_ci
     networks:
       - app-network
     restart: always
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p$$MYSQL_ROOT_PASSWORD"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
 
 networks:
   app-network:
     driver: bridge
 
 volumes:
-  mysql-data: 
+  mysql-data:
