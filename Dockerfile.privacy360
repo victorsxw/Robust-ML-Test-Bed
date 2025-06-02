@@ -1,0 +1,50 @@
+FROM python:3.9.13
+
+# 设置工作目录
+WORKDIR /tf
+
+# 安装系统依赖
+RUN apt-get update && apt-get install -y \
+    python3-dev \
+    && rm -rf /var/lib/apt/lists/*
+
+# 更新 pip
+RUN pip install --upgrade pip
+
+# 打印 Python 和 pip 版本
+RUN python --version
+RUN pip --version
+
+# 复制 requirements.txt 并安装依赖
+COPY requirements.txt /tf/
+RUN pip install --no-cache-dir -r requirements.txt
+
+# 创建必要的目录
+RUN mkdir -p /tf/scripts /tf/results /tf/models /tf/test_dataset /tf/train_dataset
+
+
+
+# 复制其他必要的目录和文件
+COPY adversarial_robustness_toolbox.egg-info /tf/adversarial_robustness_toolbox.egg-info
+COPY art /tf/art
+COPY contrib /tf/contrib
+COPY tests /tf/tests
+COPY utils /tf/utils
+
+
+# 设置卷挂载点
+VOLUME ["/tf/scripts", "/tf/results", "/tf/models", "/tf/test_dataset", "/tf/train_dataset"]
+
+# 设置环境变量
+ENV PYTHONPATH=/tf
+ENV SCRIPTS_DIR=/tf/scripts
+ENV RESULTS_DIR=/tf/results
+ENV MODELS_DIR=/tf/models
+ENV TEST_DATASET_DIR=/tf/test_dataset
+ENV TRAIN_DATASET_DIR=/tf/train_dataset
+
+# 设置工作目录为根目录
+WORKDIR /tf
+
+# 容器启动时保持运行
+CMD ["tail", "-f", "/dev/null"] 

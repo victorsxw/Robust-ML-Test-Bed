@@ -1,0 +1,16 @@
+{
+  "include": [
+    "flask_backend"
+  ],
+  "exclude": [
+    "**/node_modules",
+    "**/__pycache__"
+  ],
+  "reportMissingImports": "warning",
+  "reportMissingModuleSource": "warning",
+  "pythonVersion": "3.8",
+  "pythonPlatform": "Linux",
+  "extraPaths": [
+    "./flask_backend"
+  ]
+} 

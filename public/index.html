@@ -3,35 +3,46 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Robust ML Test Bed</title>
+    <title>Robust ML Testbed</title>
     <link rel="stylesheet" href="styles.css">
     <style>
-        /* 添加必要的样式 */
+        /* 头部容器样式 */
         .header-container {
             display: flex;
             justify-content: space-between;
             align-items: center;
             padding: 20px;
             background-color: white;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
         }
 
-        .left-logos {
+        .left-logos, .right-logos {
             display: flex;
             align-items: center;
         }
 
         .right-logos {
-            display: flex;
-            gap: 20px;  /* logo间距 */
+            gap: 20px;
         }
 
         .logo {
-            height: 60px;  /* 调整logo大小 */
+            height: 60px;
+            transition: transform 0.3s ease;
+        }
+        
+        /* NRCC logo specific style */
+        .left-logos .logo {
+            height: 100px;  /* 增加 NRCC logo 的高度 */
+        }
+        
+        .logo:hover {
+            transform: scale(1.05);
         }
 
+        /* 英雄区域样式 */
         .hero-section {
             height: 70vh;
-            background-image: url('../images/bg/background.jpeg');  /* 替换为你的背景图片 */
+            background-image: url('../images/bg/background.jpeg');
             background-size: cover;
             background-position: center;
             display: flex;
@@ -50,12 +61,14 @@
             left: 0;
             right: 0;
             bottom: 0;
-            background: rgba(0, 0, 0, 0.5);  /* 半透明遮罩 */
+            background: rgba(0, 0, 0, 0.5);
         }
 
         .hero-content {
             position: relative;
             z-index: 1;
+            max-width: 800px;
+            padding: 0 20px;
         }
 
         .hero-title {
@@ -67,6 +80,8 @@
         .button-container {
             display: flex;
             gap: 20px;
+            flex-wrap: wrap;
+            justify-content: center;
         }
 
         .hero-button {
@@ -77,13 +92,36 @@
             background-color: #007bff;
             color: white;
             cursor: pointer;
-            transition: transform 0.3s ease;
+            transition: all 0.3s ease;
             text-decoration: none;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
         }
 
         .hero-button:hover {
             transform: translateY(-3px);
             background-color: #0056b3;
+            box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15);
+        }
+        
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            .hero-title {
+                font-size: 2.5rem;
+            }
+            
+            .button-container {
+                flex-direction: column;
+                width: 100%;
+            }
+            
+            .hero-button {
+                width: 100%;
+            }
+            
+            .right-logos {
+                flex-wrap: wrap;
+                justify-content: center;
+            }
         }
     </style>
 </head>
@@ -103,7 +141,7 @@
     <!-- Hero Section -->
     <main class="hero-section">
         <div class="hero-content">
-            <h1 class="hero-title">Welcome to Robust ML Test Bed</h1>
+            <h1 class="hero-title">Welcome to Robust ML Testbed</h1>
             <div class="button-container">
                 <a href="index-01.html" class="hero-button">Vulnerability Assessment</a>
                 <a href="index-02.html" class="hero-button">Exploitation Assessment</a>
@@ -113,7 +151,7 @@
 
     <!-- Footer Section -->
     <footer>
-        <p>&copy; 2024 Robust ML Test Bed. All rights reserved.</p>
+        <p>&copy; 2024 Robust ML Testbed. All rights reserved.</p>
         <p><a href="#privacy">Privacy Policy</a> | <a href="#terms">Terms of Service</a></p>
     </footer>
 </body>

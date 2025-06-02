@@ -53,6 +53,17 @@ const api = {
             
             state.uploadedFileName = file.name.replace(new RegExp(`\\${fileType === 'model' ? '.h5' : '.csv'}$`), '');
             alert(`${fileType.charAt(0).toUpperCase() + fileType.slice(1)} file uploaded successfully`);
+
+            if (data.success) {
+                if (fileType === 'model') {
+                    window.modelFileName = data.file.savedAs;
+                    window.modelFilePath = data.file.path;
+                } else if (fileType === 'train_dataset') {
+                    window.trainDatasetFileName = data.file.savedAs;
+                } else if (fileType === 'test_dataset') {
+                    window.testDatasetFileName = data.file.savedAs;
+                }
+            }
         } catch (error) {
             console.error('Error:', error);
             alert(`Error uploading ${fileType} file`);
@@ -139,3 +150,9 @@ document.addEventListener('DOMContentLoaded', () => {
     initializeUI();
     loadStoredResults();
 });
+
+// 导出获取选中实现的函数
+export function getSelectedImplementations() {
+    const checkboxes = document.querySelectorAll('#implementation-checkboxes input[type="checkbox"]:checked');
+    return Array.from(checkboxes).map(checkbox => checkbox.value);
+}

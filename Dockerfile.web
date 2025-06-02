@@ -1,8 +1,8 @@
-FROM node:16
+FROM node:16-slim
 
 WORKDIR /app
 
-# 复制 package.json 和 package-lock.json
+# 复制package文件
 COPY package*.json ./
 
 # 安装依赖
@@ -12,11 +12,12 @@ RUN npm install
 COPY . .
 
 # 创建必要的目录
-RUN mkdir -p /app/attack_results \
-    /app/attack_scripts \
-    /app/test_dataset \
-    /app/train_dataset \
-    /app/user_models
+RUN mkdir -p \
+    /app/Attack_Results \
+    /app/Attack_Scripts \
+    /app/Test_Dataset \
+    /app/Train_Dataset \
+    /app/User_Models
 
 # 设置环境变量
 ENV NODE_ENV=production
@@ -25,5 +26,5 @@ ENV IS_DOCKER=true
 # 暴露端口
 EXPOSE 3000
 
-# 启动命令
-CMD ["npm", "start"]
+# 启动应用
+CMD ["node", "server.js"]

@@ -1,0 +1,14 @@
+# Web Framework
+flask==2.0.1
+flask-cors==3.0.10
+
+# Docker Integration
+docker==5.0.3
+
+# Logging and System Utilities
+pathlib==1.0.1
+
+# Optional: Machine Learning Libraries (if you plan to use ML functionalities)
+# tensorflow==2.5.0
+# numpy==1.19.5
+# scikit-learn==0.24.2 

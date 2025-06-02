@@ -81,7 +81,7 @@ const upload = multer({
             console.log('File type from headers:', fileType);
 
             let uploadPath;
-            if (fileType === 'model' && file.originalname.endsWith('.h5')) {
+            if (fileType === 'model' && (file.originalname.endsWith('.h5') || file.originalname.endsWith('.pt'))) {
                 uploadPath = normalizedUserModelsPath;
             } else if (fileType === 'train_dataset' && file.originalname.endsWith('.csv')) {
                 uploadPath = normalizedTrainDatasetPath;
@@ -99,24 +99,32 @@ const upload = multer({
             const clientName = req.headers['x-client-name'] || 'unknown_user';
             const timestamp = Date.now();
             
-            // 根据文件类型确定类型字符串
+            // 获取原始文件名（不包含扩展名）
+            const originalNameWithoutExt = file.originalname.replace(/\.(h5|pt|csv)$/, '');
+            
+            // 根据文件类型确定类型字符串和扩展名
             let typeStr = '';
+            let extension = '';
             switch(fileType) {
                 case 'model':
                     typeStr = 'model';
+                    extension = file.originalname.endsWith('.pt') ? '.pt' : '.h5';
                     break;
                 case 'train_dataset':
                     typeStr = 'trainingdataset';
+                    extension = '.csv';
                     break;
                 case 'test_dataset':
                     typeStr = 'testdataset';
+                    extension = '.csv';
                     break;
                 default:
                     typeStr = 'unknown';
+                    extension = path.extname(file.originalname);
             }
             
-            // 构建新的文件名: 用户名_类型_时间戳_原始文件名
-            const newFileName = `${clientName}_${typeStr}_${timestamp}_${file.originalname}`;
+            // 构建新的文件名: 用户名_类型_时间戳_原始文件名(不含扩展名)扩展名
+            const newFileName = `${clientName}_${typeStr}_${timestamp}_${originalNameWithoutExt}${extension}`;
             console.log('Generated filename:', newFileName);
             cb(null, newFileName);
         }
@@ -129,8 +137,8 @@ const upload = multer({
             return cb(new Error('File type not specified'));
         }
 
-        if (fileType === 'model' && !file.originalname.endsWith('.h5')) {
-            return cb(new Error('Model file must be .h5 format'));
+        if (fileType === 'model' && !(file.originalname.endsWith('.h5') || file.originalname.endsWith('.pt'))) {
+            return cb(new Error('Model file must be .h5 or .pt format'));
         }
         if ((fileType === 'train_dataset' || fileType === 'test_dataset') && !file.originalname.endsWith('.csv')) {
             return cb(new Error('Dataset file must be .csv format'));
@@ -195,17 +203,34 @@ router.post('/api/upload', (req, res) => {
 router.post('/api/process', async (req, res) => {
     console.log('Processing request:', req.body);
 
-    // 去掉文件名的后缀
-    const uploadFileName = req.body.upload_file_name.replace(/\.h5$/, '');
-    const requestData = {
-        ...req.body,
-        upload_file_name: uploadFileName
-    };
+    // 处理对象数组
+    const processedRequests = req.body.map(item => {
+        // 提取正确的implementation_ID
+        const implementation_ID = item.implementation_ID?.implementation_ID || item.implementation_ID;
+        
+        // 创建基本请求对象
+        const processedRequest = {
+            implementation_ID: implementation_ID,
+            upload_file_name: item.upload_file_name?.replace(/\.(h5|pt)$/, '') || ''
+        };
+
+        // 保留特定实现所需的参数
+        if (implementation_ID === 'ART_PA_007' && item.num_samples) {
+            processedRequest.num_samples = parseInt(item.num_samples);
+        }
+        if (['ART_PA_003', 'ART_PA_004', 'ART_PA_006', 'ART_PA_009'].includes(implementation_ID) && 
+            item.poison_rate !== undefined) {
+            processedRequest.poison_rate = parseFloat(item.poison_rate);
+        }
+
+        return processedRequest;
+    });
 
     const axiosInstance = axios.create({
-        // 根据环境使用不同的基础URL
-        baseURL: process.env.IS_DOCKER === 'true' ? 'http://flask:5000' : 'http://localhost:5000',
-        timeout: 600000, // 10分钟超时
+        baseURL: process.env.IS_DOCKER === 'true' 
+            ? process.env.FLASK_SERVICE_URL || 'http://solutions-query-flask:5000'
+            : 'http://localhost:5000',
+        timeout: 60000000, // before 600000=600 seconds=10 minutes,now 60000000=60000 seconds=1000 minutes
         maxContentLength: Infinity,
         maxBodyLength: Infinity,
         headers: {
@@ -215,35 +240,29 @@ router.post('/api/process', async (req, res) => {
     });
 
     try {
-        console.log('Sending request to Python server with data:', requestData);
-        const response = await axiosInstance.post('/process', requestData);
+        console.log('Sending request to Python server with data:', processedRequests);
+        const response = await axiosInstance.post('/process', processedRequests);
         console.log('Received response from Python server:', response.data);
+        
+        if (response.data.status === 'error') {
+            return res.status(500).json({
+                error: response.data.message,
+                details: response.data.error_details,
+                requestData: processedRequests
+            });
+        }
+        
         res.json(response.data);
     } catch (error) {
         console.error('Error in /api/process:', error);
 
-        // 检查 Python 服务器是否在运行
-        try {
-            const healthResponse = await axiosInstance.get('/health');
-            console.log('Python server health check:', healthResponse.data);
-        } catch (healthError) {
-            console.error('Python server health check failed:', healthError);
-            return res.status(503).json({
-                error: 'Python service is not available',
-                details: 'Please ensure the Python server is running'
-            });
-        }
+        const errorResponse = {
+            error: 'Processing failed',
+            details: error.response?.data || error.message,
+            requestData: processedRequests
+        };
 
-        // 其他错误处理
-        const statusCode = error.response?.status || 500;
-        const errorMessage = error.response?.data?.error || 'Internal server error';
-        const errorDetails = error.response?.data?.details || error.message;
-
-        res.status(statusCode).json({
-            error: errorMessage,
-            details: errorDetails,
-            requestData: req.body
-        });
+        res.status(500).json(errorResponse);
     }
 });
 

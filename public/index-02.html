@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Welcome to Robust ML Test Bed</title>
+    <title>Welcome to Robust ML Testbed</title>
     <link rel="stylesheet" href="styles.css">
     <style>
         .result-container {
@@ -156,12 +156,36 @@
             max-width: 300px; /* 限制容器宽度 */
             
         }
+
+        .param-container {
+            margin-top: 10px;
+            margin-left: 20px;
+        }
+
+        .param-input {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        .param-input input {
+            padding: 5px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            width: 150px;
+        }
+
+        .param-input label {
+            font-size: 14px;
+            color: #666;
+        }
     </style>
 </head>
 <body>
     <!-- Head Section -->
     <header>
-        <h1><a href="index.html" style="color: inherit; text-decoration: none;">Welcome to Robust ML Test Bed</a></h1>
+        <h1><a href="index.html" style="color: inherit; text-decoration: none;">Welcome to Robust ML Testbed</a></h1>
         <nav>
             <ul>
                 <li><a href="index-01.html">Vulnerability Assessment</a></li>
@@ -296,8 +320,8 @@
     <div class="third-panel">
         <!-- 原有的模型文件上传 -->
         <div class="upload-section">
-            <label for="modelInput">Upload Model (required):</label>
-            <input type="file" id="modelInput" name="model" accept=".h5">
+            <label for="modelInput">Upload Model (optional):</label>
+            <input type="file" id="modelInput" name="model" accept=".h5,.pt">
             <button type="button" onclick="uploadModel()">Upload Model</button>
         </div>
 
@@ -533,8 +557,8 @@
                 
                 // 检查文件扩展名
                 const fileExtension = file.name.split('.').pop().toLowerCase();
-                if (fileExtension !== 'h5') {
-                    alert('Only .h5 file format is allowed');
+                if (fileExtension !== 'h5' && fileExtension !== 'pt') {
+                    alert('Only .h5 and .pt file formats are allowed');
                     return;
                 }
                 
@@ -601,77 +625,136 @@
                 status.textContent = 'Processing...';
                 pythonResult.value = "Starting to process selected implementations...\n";
 
-                // 检查是否已上传模型文件
-                if (!window.uploadedFileName) {
-                    alert('Please upload a model file first');
-                    hideLoadingElements();
-                    return;
-                }
-
-                // 记录当前使用的文件名
-                console.log('Using uploaded file name:', window.uploadedFileName);
-
                 const selectedImplementations = getSelectedImplementations();
                 console.log('Selected Implementation IDs:', selectedImplementations);
 
-                if (!selectedImplementations || selectedImplementations.length === 0) {
-                    alert('Please select at least one implementation');
+                // 验证必要的参数
+                const invalidRequests = selectedImplementations.filter(impl => {
+                    if (['ART_PA_003', 'ART_PA_004', 'ART_PA_006', 'ART_PA_009'].includes(impl.implementation_ID) && 
+                        (impl.poison_rate === undefined || impl.poison_rate < 0 || impl.poison_rate > 1)) {
+                        return true;
+                    }
+                    if (impl.implementation_ID === 'ART_PA_007' && 
+                        (!impl.num_samples || impl.num_samples < 1)) {
+                        return true;
+                    }
+                    return false;
+                });
+
+                if (invalidRequests.length > 0) {
+                    alert('Please enter valid parameters for all selected implementations');
                     hideLoadingElements();
                     return;
                 }
 
-                const processImplementation = async (implementation_ID, retryCount = 0) => {
+                const processImplementation = async (implementation, retryCount = 0) => {
                     const maxRetries = 3;
                     const baseDelay = 2000;
 
                     try {
+                        // 获取正确的implementation_ID
+                        const implementation_ID = typeof implementation.implementation_ID === 'object' 
+                            ? implementation.implementation_ID.implementation_ID 
+                            : implementation.implementation_ID;
+
                         pythonResult.value += `\nProcessing Implementation ${implementation_ID}...\n`;
                         status.textContent = `Processing Implementation ${implementation_ID}...`;
 
-                        // 使用完整的文件名（包含时间戳）
-                        const requestData = {
-                            implementation_ID,
-                            upload_file_name: window.modelFileName // 使用包含时间戳的完整文件名
+                        // 构建基本请求数据
+                        let requestData = {
+                            implementation_ID: implementation_ID
                         };
-                        console.log('Sending request with data:', requestData);
+
+                        // 添加特定实现所需的参数
+                        if (implementation_ID === 'ART_PA_007' && implementation.num_samples) {
+                            requestData.num_samples = parseInt(implementation.num_samples);
+                        }
+                        if (['ART_PA_003', 'ART_PA_004', 'ART_PA_006', 'ART_PA_009'].includes(implementation_ID) && 
+                            implementation.poison_rate !== undefined) {
+                            requestData.poison_rate = parseFloat(implementation.poison_rate);
+                        }
+
+                        // 如果需要文件名，添加到请求数据中
+                        if (window.modelFileName) {
+                            requestData.upload_file_name = window.modelFileName.replace(/\.(h5|pt)$/, '');
+                        }
+
+                        // 添加详细的请求数据日志
+                        console.log('Debug - Full implementation object:', implementation);
+                        console.log('Debug - Current implementation_ID:', implementation_ID);
+                        console.log('Debug - Request data being sent:', requestData);
+                        console.log('Debug - Model file name:', window.modelFileName);
+
+                        console.log('Sending request with data:', [requestData]);
 
                         const response = await fetch('/api/process', {
                             method: 'POST',
                             headers: {
                                 'Content-Type': 'application/json'
                             },
-                            body: JSON.stringify(requestData)
+                            body: JSON.stringify([requestData])
                         });
+
+                        // 添加响应调试信息
+                        console.log('Debug - Response status:', response.status);
+                        console.log('Debug - Response headers:', Object.fromEntries(response.headers.entries()));
 
                         if (!response.ok) {
                             const errorData = await response.json();
+                            console.log('Debug - Error response data:', errorData);
                             throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
                         }
 
                         const data = await response.json();
+                        console.log('Debug - Success response data:', data);
                         console.log('Response for', implementation_ID, ':', data);
-                        pythonResult.value += `Result for ${implementation_ID}: ${JSON.stringify(data)}\n`;
+                        
+                        // 提取状态信息
+                        if (data.results && data.results[0]) {
+                            const result = data.results[0];
+                            if (result.error) {
+                                // 检查是否是执行失败但文件已生成的情况
+                                if (result.error.includes('error:execution_failed')) {
+                                    pythonResult.value += `Note: Process completed for ${implementation_ID} with warnings. Results were generated.\n`;
+                                } else {
+                                    pythonResult.value += `Result for ${implementation_ID}: ${result.error}\n`;
+                                }
+                                // 不立即返回 false，继续检查文件生成状态
+                            } else {
+                                pythonResult.value += `Result for ${implementation_ID}: ${result.status || JSON.stringify(result)}\n`;
+                            }
+                        } else {
+                            pythonResult.value += `Result for ${implementation_ID}: ${JSON.stringify(data)}\n`;
+                        }
+
+                        // 检查文件是否生成
+                        try {
+                            const checkResponse = await fetch(`/api/check-results?implementation_id=${implementation_ID}`);
+                            const checkData = await checkResponse.json();
+                            if (checkData.files_exist) {
+                                pythonResult.value += `✓ Result files were generated for ${implementation_ID}\n`;
+                                return true;
+                            }
+                        } catch (checkError) {
+                            console.error('Error checking result files:', checkError);
+                        }
+
                         return true;
 
                     } catch (error) {
-                        console.error('Error processing:', implementation_ID, error);
-                        
-                        if (retryCount < maxRetries) {
-                            const delay = baseDelay * Math.pow(2, retryCount);
-                            pythonResult.value += `Retry attempt ${retryCount + 1} for ${implementation_ID} after ${delay/1000} seconds...\n`;
-                            await new Promise(resolve => setTimeout(resolve, delay));
-                            return processImplementation(implementation_ID, retryCount + 1);
-                        }
-                        
-                        pythonResult.value += `Error processing ${implementation_ID} after ${maxRetries} attempts: ${error.message}\n`;
+                        console.error('Caught error in processImplementation:', error);
+                        console.log('Original error message:', error.message);
+                        // 修改错误处理，确保implementation_ID总是可用
+                        const currentImplementationID = implementation_ID || implementation.implementation_ID || 'Unknown Implementation';
+                        pythonResult.value += `Error processing ${currentImplementationID}: ${error.message}\n`;
                         return false;
                     }
                 };
 
                 try {
                     for (let i = 0; i < selectedImplementations.length; i++) {
-                        const implementation_ID = selectedImplementations[i];
-                        await processImplementation(implementation_ID);
+                        const implementation = selectedImplementations[i];
+                        await processImplementation(implementation);
                         // 在处理下一个实现之前添加延迟
                         if (i < selectedImplementations.length - 1) {
                             await new Promise(resolve => setTimeout(resolve, 3000));
@@ -751,23 +834,7 @@
                             if (!implementation_id) return;  // 如果没有有效的ID则跳过
 
                             // 创建复选框容器div
-                            const checkboxDiv = document.createElement('div');
-                            checkboxDiv.className = 'checkbox-item';
-
-                            // 创建复选框input元素
-                            const checkbox = document.createElement('input');
-                            checkbox.type = 'checkbox';
-                            checkbox.id = `impl-${index}`;
-                            checkbox.value = implementation_id;
-
-                            // 创建复选框标签
-                            const label = document.createElement('label');
-                            label.htmlFor = `impl-${index}`;
-                            label.textContent = implementation_id;
-
-                            // 将复选框和标签添加到容器中
-                            checkboxDiv.appendChild(checkbox);
-                            checkboxDiv.appendChild(label);
+                            const checkboxDiv = createCheckboxItem(implementation_id, index);
                             checkboxContainer.appendChild(checkboxDiv);
                         });
 
@@ -779,218 +846,128 @@
                 }
             };
 
+            // 修改复选框生成逻辑
+            function createCheckboxItem(implementation_id, index) {
+                const checkboxDiv = document.createElement('div');
+                checkboxDiv.className = 'checkbox-item';
+
+                // 创建复选框
+                const checkbox = document.createElement('input');
+                checkbox.type = 'checkbox';
+                checkbox.id = `impl-${index}`;
+                checkbox.value = implementation_id;
+                checkbox.addEventListener('change', function() {
+                    updateParameterInput(implementation_id, this.checked);
+                });
+
+                // 创建标签
+                const label = document.createElement('label');
+                label.htmlFor = `impl-${index}`;
+                label.textContent = implementation_id;
+
+                // 创建参数输入框容器
+                const paramContainer = document.createElement('div');
+                paramContainer.id = `param-container-${index}`;
+                paramContainer.className = 'param-container';
+                paramContainer.style.display = 'none';
+
+                // 添加到容器
+                checkboxDiv.appendChild(checkbox);
+                checkboxDiv.appendChild(label);
+                checkboxDiv.appendChild(paramContainer);
+
+                return checkboxDiv;
+            }
+
+            // 更新参数输入框显示
+            function updateParameterInput(implementation_id, isChecked) {
+                const index = Array.from(document.querySelectorAll('.checkbox-item input[type="checkbox"]'))
+                    .findIndex(cb => cb.value === implementation_id);
+                const paramContainer = document.getElementById(`param-container-${index}`);
+                
+                if (isChecked) {
+                    let inputHTML = '';
+                    if (['ART_PA_003', 'ART_PA_004', 'ART_PA_006', 'ART_PA_009'].includes(implementation_id)) {
+                        inputHTML = `
+                            <div class="param-input">
+                                <label>Poison Rate (float value):</label>
+                                <input type="number" 
+                                       step="0.1" 
+                                       min="0" 
+                                       max="1" 
+                                       class="poison-rate-input" 
+                                       data-implementation="${implementation_id}"
+                                       placeholder="Enter poison rate (0-1)">
+                            </div>
+                        `;
+                    } else if (implementation_id === 'ART_PA_007') {
+                        inputHTML = `
+                            <div class="param-input">
+                                <label>Number of Samples (integer):</label>
+                                <input type="number" 
+                                       step="1" 
+                                       min="1" 
+                                       class="num-samples-input" 
+                                       data-implementation="${implementation_id}"
+                                       placeholder="Enter number of samples">
+                            </div>
+                        `;
+                    }
+                    paramContainer.innerHTML = inputHTML;
+                    paramContainer.style.display = inputHTML ? 'block' : 'none';
+                } else {
+                    paramContainer.style.display = 'none';
+                    paramContainer.innerHTML = '';
+                }
+            }
+
             // 获取选中的实现ID
             function getSelectedImplementations() {
+                const selectedImplementations = [];
                 const checkboxes = document.querySelectorAll('#implementation-checkboxes input[type="checkbox"]:checked');
-                return Array.from(checkboxes).map(checkbox => checkbox.value);
+                
+                checkboxes.forEach(checkbox => {
+                    const implementation_id = checkbox.value;
+                    let requestObj = {
+                        implementation_ID: implementation_id
+                    };
+
+                    // 添加参数
+                    if (['ART_PA_003', 'ART_PA_004', 'ART_PA_006', 'ART_PA_009'].includes(implementation_id)) {
+                        const poisonRateInput = document.querySelector(`.poison-rate-input[data-implementation="${implementation_id}"]`);
+                        if (poisonRateInput && poisonRateInput.value) {
+                            requestObj.poison_rate = parseFloat(poisonRateInput.value);
+                        }
+                    } else if (implementation_id === 'ART_PA_007') {
+                        const numSamplesInput = document.querySelector(`.num-samples-input[data-implementation="${implementation_id}"]`);
+                        if (numSamplesInput && numSamplesInput.value) {
+                            requestObj.num_samples = parseInt(numSamplesInput.value);
+                        }
+                    }
+
+                    // 如果需要模型文件名
+                    if (implementation_id.startsWith("Tensorflow_privacy_MIM_") || 
+                        implementation_id.startsWith("ART_evasion_") || 
+                        implementation_id.startsWith("Privacy_meter_MIM_")) {
+                        requestObj.upload_file_name = window.modelFileName;
+                    }
+
+                    selectedImplementations.push(requestObj);
+                });
+
+                return selectedImplementations;
             }
             
             // 生成最终报告
-            function generateFinalReport() {
-                console.log('Starting report generation...');
-
-                // 获取选中的实现ID
-                const selectedImplementations = getSelectedImplementations();
-                if (!selectedImplementations || selectedImplementations.length === 0) {
-                    alert('Please select at least one implementation before generating the report');
-                    return;
+            async function generateFinalReport() {
+                try {
+                    await generateComprehensiveReport();
+                } catch (error) {
+                    console.error('Error generating report:', error);
+                    alert('Failed to generate report: ' + error.message);
                 }
-
-                // 对每个选中的实现ID验证文件是否存在
-                async function checkFileExists(implementation_id, filetype) {
-                    try {
-                        const response = await fetch(`/Attack_Results/${implementation_id}/${filetype}`, { method: 'HEAD' });
-                        return response.ok;
-                    } catch (error) {
-                        console.error(`File check error for ${implementation_id}.${filetype}:`, error);
-                        return false;
-                    }
-                }
-
-                // 为每个选中的实现ID创建分析结果部分的HTML
-                function createAnalysisSection(implementation_id) {
-                    return `
-                        <div class="report-section">
-                            <h2>Analysis Results of Assessment : ${implementation_id}</h2>
-                            <!-- 显示图片 -->
-                            <h3>Results Digram</h3>
-                            <div id="imageContainer_${implementation_id}">Loading image...</div>
-                            
-                            <!-- 显示 JSON 数据 -->
-                            <h3>Results Summary</h3>
-                            <h3><div id="jsonContent_${implementation_id}" class="json-content">                            
-                            </div></h3>
-                        </div>
-                    `;
-                }
-
-                // 创建报告内容
-                const finalReportContent = {
-                    title: 'Exploitation Assessment Report',
-                    date: new Date().toLocaleString(),
-                    modelFile: modelFileName || 'No model file uploaded',
-                    trainingData: dataset1FileName || 'No training dataset uploaded',
-                    testData: dataset2FileName || 'No test dataset uploaded',
-                    implementations: selectedImplementations,
-                    assessmentResults: document.getElementById('pythonResult').value
-                };
-
-                // 创建报告模板
-                const template = `
-                    <!DOCTYPE html>
-                    <html>
-                    <head>
-                        <title>${finalReportContent.title}</title>
-                        <style>
-                            body {
-                                font-family: Arial, sans-serif;
-                                padding: 20px;
-                                line-height: 1.6;
-                            }
-                            h1 {
-                                color: #333;
-                                border-bottom: 2px solid #007bff;
-                                padding-bottom: 10px;
-                            }
-                            .report-section {
-                                margin: 20px 0;
-                            }
-                            .report-item {
-                                margin: 10px 0;
-                            }
-                            .label {
-                                font-weight: bold;
-                                color: #007bff;
-                            }
-                            pre {
-                                background-color: #f5f5f5;
-                                padding: 10px;
-                                border-radius: 4px;
-                                overflow-x: auto;
-                                white-space: pre-wrap;
-                                word-wrap: break-word;
-                            }
-                            .result-image {
-                                max-width: 100%;
-                                height: auto;
-                                margin: 20px 0;
-                            }
-                            .json-content {
-                                background-color: #f8f9fa;
-                                border: 1px solid #dee2e6;
-                                border-radius: 4px;
-                                padding: 15px;
-                                margin: 10px 0;
-                            }
-                        </style>
-                    </head>
-                    <body>
-                        <h1>${finalReportContent.title}</h1>
-                        
-                        <div class="report-section">
-                            <p><span class="label">Generated on:</span> ${finalReportContent.date}</p>
-                        </div>
-
-                        <div class="report-section">
-                            <h2>Uploaded Files</h2>
-                            <p><span class="label">Model File:</span> ${finalReportContent.modelFile}</p>
-                            <p><span class="label">Training Dataset:</span> ${finalReportContent.trainingData}</p>
-                            <p><span class="label">Test Dataset:</span> ${finalReportContent.testData}</p>
-                        </div>
-
-                        <div class="report-section">
-                            <h2>Selected Implementations</h2>
-                            <ul>
-                                ${finalReportContent.implementations.map((impl, index) => 
-                                    `<li><span class="label">Implementation ${index + 1}:</span> ${impl}</li>`
-                                ).join('')}
-                            </ul>
-                        </div>
-
-                        <div class="report-section">
-                            <h2>Assessment Records</h2>
-                            <h3><pre>${finalReportContent.assessmentResults}</pre></h3>
-                        </div>
-
-                        <!-- 为每个实现ID创建分析结果部分 -->
-                        ${selectedImplementations.map(createAnalysisSection).join('')}
-                    </body>
-                    </html>
-                `;
-
-                const printWindow = window.open('', '_blank');
-                printWindow.document.write(template);
-
-                // 为每个选中的实现ID加载图片和JSON数据
-                selectedImplementations.forEach(implementation_id => {
-                    // 加载图片
-                    const img = new Image();
-                    img.onload = function() {
-                        const imageContainer = printWindow.document.getElementById(`imageContainer_${implementation_id}`);
-                        if (imageContainer) {
-                            imageContainer.innerHTML = '';
-                            imageContainer.appendChild(img.cloneNode());
-                        }
-                    };
-                    img.onerror = function() {
-                        const imageContainer = printWindow.document.getElementById(`imageContainer_${implementation_id}`);
-                        if (imageContainer) {
-                            imageContainer.innerHTML = `Error loading image for implementation: ${implementation_id}`;
-                        }
-                    };
-                    // 使用选中的实现ID构建图片URL
-                    img.src = `/Attack_Results/${implementation_id}/png`;
-                    img.className = 'result-image';
-
-                    // 加载JSON数据
-                    fetch(`/Attack_Results/${implementation_id}/json`)
-                        .then(response => {
-                            if (!response.ok) {
-                                throw new Error(`Failed to load data for implementation: ${implementation_id}`);
-                            }
-                            return response.json();
-                        })
-                        .then(data => {
-                            const jsonContent = printWindow.document.getElementById(`jsonContent_${implementation_id}`);
-                            if (jsonContent) {
-                                // 显示摘要信息
-                                const formattedContent = data.messages.map(message => {
-                                    return `<div class="summary-entry">${message}</div>`;
-                                }).join('\n');
-
-                                // 添加样式
-                                jsonContent.innerHTML = `
-                                    <style>
-                                        .summary-entry {
-                                            margin: 10px 0;
-                                            padding: 10px;
-                                            background-color: #f8f9fa;
-                                            border-radius: 4px;
-                                            font-family: monospace;
-                                            white-space: pre-wrap;
-                                        }
-                                    </style>
-                                    ${formattedContent}
-                                `;
-                            }
-                        })
-                        .catch(error => {
-                            console.error(`Error loading JSON file for ${implementation_id}:`, error);
-                            const jsonContent = printWindow.document.getElementById(`jsonContent_${implementation_id}`);
-                            if (jsonContent) {
-                                jsonContent.innerHTML = `Error loading summary for implementation ${implementation_id}: ${error.message}`;
-                            }
-                        });
-                });
-
-                // 等待所有内容加载完成后打印
-                printWindow.document.close();
-                printWindow.onload = function() {
-                    setTimeout(() => {
-                        printWindow.print();
-                    }, 2000);
-                };
             }
+
             // 修改上传函数
             async function uploadFile(fileInput, fieldName) {
                 console.log('Starting file upload for:', fieldName);
@@ -1004,7 +981,7 @@
                 }
 
                 // 检查文件类型
-                const isValidType = (fieldName === 'model' && file.name.endsWith('.h5')) ||
+                const isValidType = (fieldName === 'model' && (file.name.endsWith('.h5') || file.name.endsWith('.pt'))) ||
                                    ((fieldName === 'train_dataset' || fieldName === 'test_dataset') && 
                                     file.name.endsWith('.csv'));
                 
@@ -1092,8 +1069,14 @@
 
     <!-- Foot Section -->
     <footer>
-        <p>&copy; 2024 Robust ML Test Bed. All rights reserved.</p>
+        <p>&copy; 2024 Robust ML Testbed. All rights reserved.</p>
         <p><a href="#privacy">Privacy Policy</a> | <a href="#terms">Terms of Service</a></p>
     </footer>
+
+    <!-- 在 </body> 标签前添加 -->
+    <script type="module" src="js/config/reportConfig.js"></script>
+    <script type="module" src="js/utils/reportUtils.js"></script>
+    <script type="module" src="js/reportGenerator.js"></script>
+    <script type="module" src="js/main.js"></script>
 </body>
 </html> 

@@ -1,0 +1,21 @@
+FROM mysql:8.0
+
+# 设置工作目录
+WORKDIR /docker-entrypoint-initdb.d/
+
+# 复制初始化SQL脚本
+COPY init_dump.sql .
+COPY init.sql .
+
+# 设置环境变量
+ENV MYSQL_ROOT_PASSWORD=yorku2024
+ENV MYSQL_DATABASE=attack
+
+# 设置字符集
+ENV LANG=C.UTF-8
+
+# 暴露端口
+EXPOSE 3306
+
+# 设置数据目录
+VOLUME /var/lib/mysql

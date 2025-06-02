@@ -3,10 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Welcome to Robust ML Test Bed</title>
+    <title>Welcome to Robust ML Testbed</title>
     <link rel="stylesheet" href="styles.css">
     <style>
-        /* 保持与现有按钮样式一致 */
+        /* 按钮样式 */
         #generatePDF, #nextStep {
             margin-top: 20px;
             padding: 10px 20px;
@@ -16,20 +16,32 @@
             border-radius: 4px;
             cursor: pointer;
             font-size: 16px;
-            transition: background-color 0.3s ease;
-            margin-right: 10px; /* 添加按钮之间的间距 */
+            transition: background-color 0.3s ease, transform 0.2s ease;
+            margin-right: 10px;
         }
     
         #generatePDF:hover, #nextStep:hover {
             background-color: #0056b3;
+            transform: translateY(-2px);
+        }
+        
+        #generatePDF:active, #nextStep:active {
+            transform: translateY(0);
         }
     
+        /* 输入字段样式 */
         .input-field {
             width: 100%;
             padding: 8px;
             border: 1px solid #ddd;
             border-radius: 4px;
             font-size: 14px;
+            transition: border-color 0.3s;
+        }
+        
+        .input-field:focus {
+            border-color: #007bff;
+            outline: none;
         }
     
         .input-field.error {
@@ -39,20 +51,52 @@
         .input-field.error::placeholder {
             color: #ff4444;
         }
-        </style>
-</head>
-<body>
-    <!-- Head Section -->
-    <style>
-        /* 添加反白样式 */
-        .active {
-        background-color: #eaeef1; /* 反白背景颜色 */
-        color: rgb(35, 231, 9); /* 反白文字颜色 */
-        border-radius: 8px; /* 圆角效果 */
+        
+        /* 客户输入区域 */
+        .client-input {
+            background-color: #f8f9fa;
+            padding: 20px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .input-group {
+            margin-bottom: 15px;
+        }
+        
+        .submit-btn {
+            background-color: #28a745;
+            transition: background-color 0.3s;
+        }
+        
+        .submit-btn:hover {
+            background-color: #218838;
+        }
+        
+        /* 左侧面板样式 */
+        .left-panel {
+            background-color: white;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        /* 选择框样式 */
+        select {
+            appearance: none;
+            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+            background-repeat: no-repeat;
+            background-position: right 10px center;
+            background-size: 1em;
+            padding-right: 30px;
         }
     </style>
+</head>
+<body>
+    <!-- 头部导航 -->
     <header>
-        <h1><a href="index.html" style="color: inherit; text-decoration: none;">Welcome to Robust ML Test Bed</a></h1>
+        <h1><a href="index.html" style="color: inherit; text-decoration: none;">Welcome to Robust ML Testbed</a></h1>
         <nav>
             <ul>
                 <li><a href="index-01.html" class="active">Vulnerability Assessment</a></li>
@@ -62,7 +106,7 @@
     </header>
 
     <div class="container">
-        <!-- client structure -->
+        <!-- 客户信息输入区域 -->
         <div class="client-input">
             <h1>Project Client Inputs</h1>
             <div class="input-group">
@@ -74,11 +118,12 @@
             </div>
             <button class="submit-btn" onclick="submitClientName()">Confirm</button>
         </div>
-        <!-- model profiles structure -->
+        
+        <!-- 模型配置区域 -->
         <div class="left-panel">
             <h1>Model Profiles</h1>
             <div class="form-container">
-                <!-- Selection for Attack Type -->
+                <!-- 攻击类型选择 -->
                 <div class="form-group">
                     <label>Attack Types:</label>
                     <select id="Attack_Types">
@@ -89,12 +134,11 @@
                         <option value="Backdoor Attack">Backdoor Attack</option>
                         <option value="Privacy Attack">Privacy Attack</option>
                         <option value="Generative AI Attack">Generative AI Attack</option>
-                        
                         <option value="Out-of-Distribution">Out-of-Distribution</option>
                     </select>
                 </div>                                
                 
-                <!-- Selection for Data Modality -->
+                <!-- 数据模态选择 -->
                 <div class="form-group">
                     <label>Data Modality:</label>
                     <select id="Data_Modality">
@@ -116,7 +160,7 @@
                     </select>
                 </div>
 
-                <!-- Selection for Task Type -->
+                <!-- 任务类型选择 -->
                 <div class="form-group">
                     <label>Tasks:</label>
                     <select id="Tasks">
@@ -132,7 +176,7 @@
                     </select>
                 </div>
 
-                <!-- Selection for Learning Architecture -->
+                <!-- 学习架构选择 -->
                 <div class="form-group">
                     <label>Learning Architecture:</label>
                     <select id="Learning_Architecture">
@@ -146,7 +190,7 @@
                     </select>
                 </div>
 
-                <!-- Selection for Model Architecture -->
+                <!-- 模型架构选择 -->
                 <div class="form-group">
                     <label>Model Architecture:</label>
                     <select id="Model_Architecture">
@@ -163,7 +207,7 @@
                     </select>
                 </div>
 
-                <!-- Selection for Attacker's Knowledge -->
+                <!-- 攻击者知识选择 -->
                 <div class="form-group">
                     <label>Knowledge:</label>
                     <select id="Knowledge">
@@ -177,7 +221,7 @@
                     </select>
                 </div>
 
-                <!-- Selection for Application Domains -->
+                <!-- 应用领域选择 -->
                 <div class="form-group">
                     <label>Application Domains:</label>
                     <select id="Application_Domains">
@@ -199,10 +243,11 @@
                     </select>
                 </div>
 
-                <button onclick="querySolution()">Vulnerability Assessment</button>
+                <!-- 评估按钮 -->
+                <button onclick="querySolution()" class="assessment-btn">Vulnerability Assessment</button>
                 <div id="result">Vulnerability Assessment results will appear here...</div>
             
-                <!-- 在现有表单后添加 PDF 按钮 -->
+                <!-- 报告和下一步按钮 -->
                 <div class="form-group">
                     <button id="generatePDF" class="btn" onclick="generatePDFReport()">
                         Generate VA Report
@@ -216,9 +261,25 @@
     </div>
 
     <script>
-        // 全局变量存储用户名
+        // 全局变量存储用户名和查询结果
         let globalClientName = '';
-        let globalImplementations_1 = [];  // 存储查询结果
+        let globalImplementations_1 = [];
+
+        // 页面加载时检查localStorage中的数据
+        window.addEventListener('load', () => {
+            console.log('Page loaded');
+            // 从localStorage恢复用户名
+            const storedName = localStorage.getItem('globalClientName');
+            if (storedName) {
+                globalClientName = storedName;
+                document.getElementById('clientName').value = storedName;
+            }
+            
+            console.log('Current localStorage content:', {
+                globalImplementations_1: localStorage.getItem('globalImplementations_1'),
+                searchResults: localStorage.getItem('searchResults')
+            });
+        });
 
         // 提交客户姓名的函数
         function submitClientName() {
@@ -227,13 +288,14 @@
             
             // 验证输入
             if (name === '') {
-                clientNameInput.placeholder = 'Please enter a valid name';  // 在输入框中显示提示
-                clientNameInput.classList.add('error');  // 可以添加错误样式
+                clientNameInput.placeholder = 'Please enter a valid name';
+                clientNameInput.classList.add('error');
                 return;
             }
             
             // 存储用户名
             globalClientName = name;
+            localStorage.setItem('globalClientName', name);
             
             // 清除错误状态
             clientNameInput.classList.remove('error');
@@ -265,17 +327,22 @@
                 alert('Please select all fields');
                 return;
             }
+            
+            // 验证用户名是否已输入
+            if (!globalClientName) {
+                alert('Please enter your name and click Confirm first');
+                document.getElementById('clientName').focus();
+                return;
+            }
+            
             document.getElementById('result').innerHTML = 'Sending request...';
             
             // 使用fetch API向'/api/query-solution'端点发送POST请求
             fetch('/api/query-solution', {
-                // 指定HTTP请求方法为POST
                 method: 'POST',
-                // 设置请求头,声明发送的是JSON格式数据
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                // 将请求参数对象转换为JSON字符串作为请求体
                 body: JSON.stringify({
                     Attack_Types,
                     Data_Modality,
@@ -286,9 +353,14 @@
                     Application_Domains
                 })
             })
-            .then(response => response.json())// 将响应转换为JSON格式
-            .then(data => {// 处理返回的数据
-                console.log('Raw data:', data); // 添加调试日志
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then(data => {
+                console.log('Raw data:', data);
                 globalImplementations_1 = data;
                 localStorage.setItem('globalImplementations_1', JSON.stringify(data));
                 localStorage.setItem('globalClientName', globalClientName);
@@ -297,8 +369,8 @@
                 const selectedAttackType = document.getElementById('Attack_Types').value;
                 
                 // 开始构建显示内容
-                let resultHTML = 'The results of vulnerability assessment:<br>';
-                resultHTML += `Selected Attack Type: ${selectedAttackType}<br><br>`;
+                let resultHTML = '<div class="results-header">The results of vulnerability assessment:</div>';
+                resultHTML += `<div class="selected-type">Selected Attack Type: ${selectedAttackType}</div><br>`;
 
                 if (selectedAttackType === 'ALL') {
                     // 定义所有攻击类型（除了ALL）
@@ -342,42 +414,53 @@
                             }
                         });
 
-                        console.log(`Results for ${attackType}:`, typeResults); // 添加调试日志
+                        console.log(`Results for ${attackType}:`, typeResults);
 
                         if (typeResults.length > 0) {
-                            resultHTML += `<strong>${attackType}:</strong><br>`;
+                            resultHTML += `<div class="attack-type-header"><strong>${attackType}:</strong></div>`;
                             typeResults.forEach((item, index) => {
-                                resultHTML += `&nbsp;&nbsp;&nbsp;&nbsp;${index + 1}. ${item.ID}: ${item.Name}<br>`;
+                                resultHTML += `<div class="attack-item">${index + 1}. ${item.ID}: ${item.Name}</div>`;
                             });
                             resultHTML += '<br>';
                         }
                     });
 
                     // 检查是否有任何结果被显示
-                    if (resultHTML === `The results of vulnerability assessment:<br>Selected Attack Type: ALL<br><br>`) {
-                        resultHTML += 'No matching results found for any attack type.';
+                    if (resultHTML === `<div class="results-header">The results of vulnerability assessment:</div><div class="selected-type">Selected Attack Type: ALL</div><br>`) {
+                        resultHTML += '<div class="no-results">No matching results found for any attack type.</div>';
                     }
                 } else {
                     // 直接显示查询结果
-                    const implementations_1 = data.map((item, index) => 
-                        `${index + 1}. ${item.ID}: ${item.Name}<br>`).join(' ');
-                    resultHTML += implementations_1;
+                    if (data.length === 0) {
+                        resultHTML += '<div class="no-results">No matching results found.</div>';
+                    } else {
+                        const implementations_1 = data.map((item, index) => 
+                            `<div class="attack-item">${index + 1}. ${item.ID}: ${item.Name}</div>`).join('');
+                        resultHTML += implementations_1;
+                    }
                 }
 
                 // 显示结果
                 const resultElement = document.getElementById('result');
                 resultElement.innerHTML = resultHTML;
-                console.log('Final HTML:', resultHTML); // 添加调试日志
+                resultElement.scrollIntoView({ behavior: 'smooth' });
+                console.log('Final HTML:', resultHTML);
             })
-            .catch(error => {// 捕获并处理请求过程中的错误
-                 // 在页面上显示错误信息
+            .catch(error => {
+                console.error('Error details:', error);
                 document.getElementById('result').innerHTML = 
-                    `Error: ${error.message}`;
+                    `<div class="error-message">Error: ${error.message}</div>`;
             });
         }
 
         // 生成PDF报告的函数
         function generatePDFReport() {
+            // 检查是否有查询结果
+            if (!globalImplementations_1 || globalImplementations_1.length === 0) {
+                alert('Please perform a vulnerability assessment first');
+                return;
+            }
+            
             // 获取所有选择的值
             const attackType = document.getElementById('Attack_Types').value;
             const dataModality = document.getElementById('Data_Modality').value;
@@ -438,6 +521,14 @@
                             margin-left: 20px;
                             margin-bottom: 5px;
                         }
+                        .page-break {
+                            page-break-before: always;
+                        }
+                        @media print {
+                            .no-print {
+                                display: none;
+                            }
+                        }
                     </style>
                 </head>
                 <body>
@@ -461,16 +552,32 @@
                         <p class="label">Assessment Results:</p>
                         ${document.getElementById('result').innerHTML}
                     </div>
+                    
+                    <div class="no-print">
+                        <button onclick="window.print();" style="margin-top: 20px; padding: 10px 20px; background-color: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer;">
+                            Print Report
+                        </button>
+                    </div>
                 </body>
                 </html>
             `);
             printWindow.document.close();
-            printWindow.print();
+            
+            // 自动触发打印
+            setTimeout(() => {
+                printWindow.print();
+            }, 1000);
         }
 
         // 添加新的函数，结合搜索和跳转功能
         async function querySolutionRightAndRedirect() {
             try {
+                // 检查是否有查询结果
+                if (!globalImplementations_1 || globalImplementations_1.length === 0) {
+                    alert('Please perform a vulnerability assessment first');
+                    return;
+                }
+                
                 // 从 localStorage 读取并解析JSON数据
                 const storedData = localStorage.getItem('globalImplementations_1');
                 if (!storedData) {
@@ -479,22 +586,28 @@
                 }
 
                 const parsedData = JSON.parse(storedData);
-                console.log('Parsed data:', parsedData); // 添加调试日志
+                console.log('Parsed data:', parsedData);
 
                 // 获取所有的ID
                 const Attack_IDs = parsedData.map(item => item.ID);
-                console.log('Attack IDs:', Attack_IDs); // 添加调试日志
+                console.log('Attack IDs:', Attack_IDs);
                 
                 if (!Attack_IDs.length) {
                     alert('No Attack IDs found. Please select an attack first.');
                     return;
                 }
 
+                // 显示加载状态
+                const nextStepBtn = document.getElementById('nextStep');
+                const originalText = nextStepBtn.textContent;
+                nextStepBtn.textContent = 'Processing...';
+                nextStepBtn.disabled = true;
+
                 // 为所有Attack ID发送请求
                 const results = [];
                 for (const Attack_ID of Attack_IDs) {
                     try {
-                        console.log('Sending request for Attack_ID:', Attack_ID); // 添加调试日志
+                        console.log('Sending request for Attack_ID:', Attack_ID);
                         const response = await fetch('/api/query-solution-right', {
                             method: 'POST',
                             headers: {
@@ -508,7 +621,7 @@
                         }
 
                         const data = await response.json();
-                        console.log('Response data for', Attack_ID, ':', data); // 添加调试日志
+                        console.log('Response data for', Attack_ID, ':', data);
                         results.push(...(Array.isArray(data) ? data : [data]));
                     } catch (error) {
                         console.error('Error processing Attack_ID:', Attack_ID, error);
@@ -516,13 +629,17 @@
                     }
                 }
 
+                // 恢复按钮状态
+                nextStepBtn.textContent = originalText;
+                nextStepBtn.disabled = false;
+
                 // 确保我们有结果
                 if (results.length === 0) {
                     alert('No implementation IDs found for the selected attacks.');
                     return;
                 }
 
-                console.log('Final results:', results); // 添加调试日志
+                console.log('Final results:', results);
                 
                 // 将结果存储在 localStorage 中
                 localStorage.setItem('searchResults', JSON.stringify(results));
@@ -531,28 +648,24 @@
                 await new Promise(resolve => setTimeout(resolve, 100));
                 
                 // 跳转到 index-02.html
-                console.log('Redirecting to index-02.html...'); // 添加调试日志
+                console.log('Redirecting to index-02.html...');
                 window.location.href = 'index-02.html';
                 
             } catch (error) {
                 console.error('Error details:', error);
                 alert('Error occurred during search. Please check console for details.');
+                
+                // 恢复按钮状态
+                const nextStepBtn = document.getElementById('nextStep');
+                nextStepBtn.textContent = 'Exploitation Assessment';
+                nextStepBtn.disabled = false;
             }
         }
-
-        // 在页面加载时添加调试代码
-        window.addEventListener('load', () => {
-            console.log('Page loaded');
-            console.log('Current localStorage content:', {
-                globalImplementations_1: localStorage.getItem('globalImplementations_1'),
-                searchResults: localStorage.getItem('searchResults')
-            });
-        });
     </script>
 
-    <!-- Foot Section -->
+    <!-- 页脚 -->
     <footer>
-        <p>&copy; 2024 Robust ML Test Bed. All rights reserved.</p>
+        <p>&copy; 2024 Robust ML Testbed. All rights reserved.</p>
         <p><a href="#privacy">Privacy Policy</a> | <a href="#terms">Terms of Service</a></p>
     </footer>
 </body>
