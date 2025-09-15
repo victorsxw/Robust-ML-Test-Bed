@@ -1,4 +1,4 @@
-###NOTE：This program is the user interface component of the testbed only. The various images in the backend Docker containers (including TensorFlow Privacy, Pytorch, Privacy meter, and Adversarial Robustness Toolbox (ART)), along with the analysis scripts（Privacy Attack，Evasion Attack， Poison Attack， etc） and sample models for version 1.0, are all deployed and run on an internal system. As the project is still in progress, it is not currently available for external use.
+###NOTE：This program is the user interface component of the testbed only. The various images in the backend Docker containers (including TensorFlow Privacy, Pytorch, Privacy meter, and Adversarial Robustness Toolbox (ART)), along with the analysis scripts（Privacy Attack，Evasion Attack， Poison Attack， etc） and sample models for version 1.0, are all deployed and run on an internal system（User guide https://github.com/victorsxw/Robust-ML-Test-Bed/blob/main/User%20Guide.pdf）. As the project is still in progress, it is not currently available for external use.
 
 
 
